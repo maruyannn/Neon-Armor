@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <title>Neon Armor</title>
-    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
-    
     <style>
         :root {
             --bg-color: #0d0d12; --accent-color: #00ffcc; --danger-color: #ff0055;
@@ -18,86 +15,66 @@
             background-color: var(--bg-color); color: var(--text-color);
             font-family: 'Courier New', Courier, monospace; overflow: hidden;
             display: flex; justify-content: center; align-items: center; user-select: none;
-            /* Previene el comportamiento de arrastrar la pantalla en celulares */
             touch-action: none; 
         }
-        
-        /* Adaptación a pantallas móviles */
         #appWrapper { 
             display: flex; gap: 10px; width: 100vw; height: 100vh; 
             flex-direction: column; align-items: center; justify-content: center;
         }
-        
         #gameContainer { 
             position: relative; width: 100%; height: 100%; 
             max-width: 1024px; max-height: 768px; 
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.2); background: #000; 
         }
-        
-        /* El object-fit mantiene la proporción del juego sin deformarse */
         canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
         
-        #leaderboardPanel { 
-            display: none; /* Ocultamos el panel lateral en móviles por espacio */
-        }
-        
-        @media (min-width: 1200px) {
-            #appWrapper { flex-direction: row; }
-            #leaderboardPanel { 
-                display: block; width: 250px; height: 768px; background: #111; 
-                border: 2px solid var(--accent-color); padding: 20px; 
-                box-sizing: border-box; overflow-y: auto; border-radius: 8px; 
-            }
-        }
-
-        #leaderboardPanel h2 { color: var(--accent-color); text-align: center; font-size: 1.2em; margin-top: 0; }
-        .lb-entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.9em; }
-        .lb-entry span:nth-child(2) { color: var(--gold-color); }
-
         #uiLayer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 10; }
-        
-        /* Pantallas de menú más adaptables */
         .screen { 
             background: var(--ui-bg); padding: 20px; border: 2px solid var(--accent-color); 
             border-radius: 8px; text-align: center; pointer-events: auto; 
             box-shadow: 0 0 15px var(--accent-color); display: none; 
-            width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-sizing: border-box;
+            width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-sizing: border-box;
         }
         .screen.active { display: block; }
+        h1 { margin-top: 0; color: var(--accent-color); text-shadow: 0 0 10px var(--accent-color); font-size: 2.2em; }
         
-        h1 { margin-top: 0; color: var(--accent-color); text-shadow: 0 0 10px var(--accent-color); font-size: 2em; }
-        @media (max-width: 600px) { h1 { font-size: 1.5em; } }
-        
-        h2 { color: var(--danger-color); }
-        h3 { color: var(--gold-color); margin-bottom: 5px; }
-        
-        input { padding: 10px; font-size: 1.2em; font-family: inherit; background: #000; border: 1px solid var(--accent-color); color: #fff; width: 100%; max-width: 300px; margin-bottom: 15px; text-align: center; box-sizing: border-box;}
+        input { padding: 12px; font-size: 1.1em; font-family: inherit; background: #000; border: 1px solid var(--accent-color); color: #fff; width: 100%; max-width: 300px; margin-bottom: 15px; text-align: center; box-sizing: border-box;}
         button { background: var(--accent-color); color: #000; border: none; padding: 12px 20px; font-size: 1em; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.2s; font-family: inherit; margin: 5px; width: 100%; max-width: 250px;}
         button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
-        button.danger { background: var(--danger-color); color: #fff; }
 
-        .menu-grid { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
-        
-        .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; text-align: left; }
-        .weapon-card { border: 1px solid #555; padding: 10px; background: #111; position: relative; }
-        .weapon-card.unlocked { border-color: var(--accent-color); cursor: pointer; }
-        .weapon-card.selected { box-shadow: 0 0 15px var(--accent-color); background: #1a2a2a; }
-        .weapon-card .buy-btn { width: 100%; background: var(--gold-color); margin-top: 10px; padding: 8px; }
-        .weapon-card h4 { margin: 0 0 5px 0; color: #fff; font-size: 1em; }
-        .weapon-card p { margin: 2px 0; font-size: 0.8em; color: #aaa; }
-        
-        .mutations-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
-        .mutation-card { border: 1px solid var(--accent-color); padding: 15px; background: #111; cursor: pointer; transition: 0.2s; }
-        .mutation-card:hover { background: #222; transform: scale(1.05); box-shadow: 0 0 15px var(--accent-color); }
-
-        .stats-bar { display: flex; flex-wrap: wrap; justify-content: space-around; background: #222; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-weight: bold; font-size: 0.9em; gap: 10px; }
+        .stats-bar { display: flex; flex-wrap: wrap; justify-content: space-around; background: #222; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-weight: bold; font-size: 0.8em; gap: 5px; }
         .stats-bar span { color: var(--accent-color); }
+
+        /* Controles Móviles */
+        #mobileHUD { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
+        .joystick-zone { position: absolute; bottom: 20px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; border: 1px solid rgba(0, 255, 204, 0.2); pointer-events: auto; }
+        #moveZone { left: 20px; }
+        #fireZone { right: 20px; }
+        .joystick-knob { position: absolute; top: 50%; left: 50%; width: 60px; height: 60px; background: rgba(0, 255, 204, 0.3); border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid var(--accent-color); }
+        #btnMobilePause { position: absolute; top: 15px; right: 15px; width: 50px; height: 50px; background: rgba(0,0,0,0.6); border: 2px solid var(--accent-color); color: var(--accent-color); border-radius: 8px; pointer-events: auto; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+        .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 20px; }
+        .weapon-card { border: 1px solid #555; padding: 10px; background: #111; }
+        .weapon-card.selected { border-color: var(--accent-color); background: #1a2a2a; }
+        
+        #leaderboardPanel { display: none; }
+        @media (min-width: 1200px) {
+            #appWrapper { flex-direction: row; }
+            #leaderboardPanel { display: block; width: 250px; height: 768px; background: #111; border: 2px solid var(--accent-color); padding: 20px; box-sizing: border-box; overflow-y: auto; border-radius: 8px; }
+        }
     </style>
 </head>
 <body>
 <div id="appWrapper">
     <div id="gameContainer">
         <canvas id="gameCanvas" width="1024" height="768"></canvas>
+        
+        <div id="mobileHUD">
+            <div id="moveZone" class="joystick-zone"><div id="moveKnob" class="joystick-knob"></div></div>
+            <div id="fireZone" class="joystick-zone"><div id="fireKnob" class="joystick-knob"></div></div>
+            <div id="btnMobilePause">II</div>
+        </div>
+
         <div id="uiLayer">
             <div id="loginScreen" class="screen active">
                 <h1>NEON ARMOR</h1><p>Identificación de Usuario</p>
@@ -122,102 +99,73 @@
                 <button id="btnLogout" style="background:#444; color:#fff;">Cerrar Sesión</button>
             </div>
             <div id="storeScreen" class="screen">
-                <h2>ARMERÍA</h2><p>Créditos disponibles: <span id="storeCoins" style="color:var(--gold-color)"></span></p>
-                <div class="store-grid" id="storeContainer" style="max-height: 50vh; overflow-y: auto; padding: 10px;"></div>
-                <button id="btnBackToMenu" style="margin-top: 20px;">Volver al Menú</button>
+                <h2>ARMERÍA</h2><p>Créditos: <span id="storeCoins" style="color:var(--gold-color)"></span></p>
+                <div class="store-grid" id="storeContainer"></div>
+                <button id="btnBackToMenu">Volver al Menú</button>
             </div>
             <div id="mutationScreen" class="screen">
-                <h2>MUTACIÓN DISPONIBLE</h2><p>Selecciona una mejora para continuar:</p>
+                <h2>MUTACIÓN DISPONIBLE</h2>
                 <div class="mutations-grid" id="mutationsContainer"></div>
             </div>
             <div id="pauseScreen" class="screen">
-                <h2>JUEGO PAUSADO</h2>
+                <h2>PAUSA</h2>
                 <button id="btnResume">Continuar</button>
-                <button id="btnPauseSound">Sonido: <span id="pauseSoundStatus">ON</span></button>
-                <button id="btnQuit" class="danger">Abandonar Partida</button>
+                <button id="btnQuit" class="danger">Abandonar</button>
             </div>
             <div id="gameOverScreen" class="screen">
-                <h2>FIN DE LA TRANSMISIÓN</h2><p id="goContext"></p>
-                <p>Puntuación: <span id="goScore"></span></p><p>Monedas obtenidas: <span id="goCoins" style="color:var(--gold-color)"></span></p>
-                <button id="btnReturnDead">Volver al Menú</button>
+                <h2>FIN DE TRANSMISIÓN</h2>
+                <p>Puntos: <span id="goScore"></span></p>
+                <button id="btnReturnDead">Menú Principal</button>
             </div>
             <div id="victoryScreen" class="screen">
-                <h2 style="color: var(--gold-color)">¡TRONO ALCANZADO!</h2><p>El jefe final ha sido derrotado.</p>
-                <p>Puntuación final: <span id="vicScore"></span></p><p>Monedas obtenidas: <span id="vicCoins" style="color:var(--gold-color)"></span></p>
-                <button id="btnReturnWin">Volver al Menú</button>
+                <h2 style="color: var(--gold-color)">¡TRONO ALCANZADO!</h2>
+                <button id="btnReturnWin">Menú Principal</button>
             </div>
         </div>
     </div>
-    <div id="leaderboardPanel"><h2>TOP PILOTOS (HISTORIA)</h2><div id="lbContainer"></div></div>
+    <div id="leaderboardPanel"><h2>TOP PILOTOS</h2><div id="lbContainer"></div></div>
 </div>
 
 <script>
 const CANVAS_WIDTH = 1024, CANVAS_HEIGHT = 768, TILE_SIZE = 64;
 
 const WEAPONS = {
-    p1: { id: 'p1', name: 'Pistola Básica', type: 'pistol', tier: 1, cost: 0, damage: 8, fireRate: 350, speed: 600, spread: 0.04, auto: false, color: '#aaa', magSize: 12, reloadTime: 1.2 },
-    p2: { id: 'p2', name: 'Pistola Táctica', type: 'pistol', tier: 2, cost: 150, damage: 15, fireRate: 300, speed: 700, spread: 0.03, auto: false, color: '#0f0', magSize: 15, reloadTime: 1.0 },
-    p3: { id: 'p3', name: 'Cañón de Mano', type: 'pistol', tier: 3, cost: 500, damage: 30, fireRate: 400, speed: 800, spread: 0.02, auto: false, color: '#f0f', magSize: 7, reloadTime: 1.5 },
-    s1: { id: 's1', name: 'Escopeta Recortada', type: 'shotgun', tier: 1, cost: 0, damage: 6, fireRate: 1000, speed: 450, spread: 0.4, auto: false, bullets: 5, color: '#aaa', magSize: 2, reloadTime: 1.8 },
-    s2: { id: 's2', name: 'Escopeta Combate', type: 'shotgun', tier: 2, cost: 200, damage: 9, fireRate: 850, speed: 500, spread: 0.35, auto: false, bullets: 7, color: '#0f0', magSize: 6, reloadTime: 2.0 },
-    s3: { id: 's3', name: 'Aniquiladora', type: 'shotgun', tier: 3, cost: 600, damage: 12, fireRate: 700, speed: 550, spread: 0.3, auto: false, bullets: 10, color: '#f0f', magSize: 8, reloadTime: 2.2 },
-    r1: { id: 'r1', name: 'Rifle Oxidado', type: 'rifle', tier: 1, cost: 0, damage: 4, fireRate: 150, speed: 700, spread: 0.15, auto: true, color: '#aaa', magSize: 30, reloadTime: 2.0 },
-    r2: { id: 'r2', name: 'Rifle Asalto', type: 'rifle', tier: 2, cost: 250, damage: 6, fireRate: 120, speed: 800, spread: 0.1, auto: true, color: '#0f0', magSize: 40, reloadTime: 1.8 },
-    r3: { id: 'r3', name: 'Rifle Plasma', type: 'rifle', tier: 3, cost: 750, damage: 9, fireRate: 90, speed: 1000, spread: 0.05, auto: true, color: '#0ff', magSize: 50, reloadTime: 1.5 },
-    sn1: { id: 'sn1', name: 'Francotirador Antiguo', type: 'sniper', tier: 1, cost: 300, damage: 40, fireRate: 1200, speed: 1200, spread: 0.01, auto: false, color: '#ffaa00', magSize: 5, reloadTime: 2.5 },
-    sn2: { id: 'sn2', name: 'Francotirador Pesado', type: 'sniper', tier: 2, cost: 600, damage: 70, fireRate: 1400, speed: 1500, spread: 0.005, auto: false, color: '#ff5500', magSize: 4, reloadTime: 2.8 },
-    sn3: { id: 'sn3', name: 'Riel Magnético', type: 'sniper', tier: 3, cost: 1200, damage: 150, fireRate: 1500, speed: 2000, spread: 0, auto: false, color: '#ff0000', magSize: 3, reloadTime: 3.0 },
-    g1: { id: 'g1', name: 'Lanzagranadas Ligero', type: 'grenade', tier: 1, cost: 400, damage: 25, fireRate: 1000, speed: 400, spread: 0.1, auto: false, color: '#ff00aa', explosive: true, radius: 60, magSize: 4, reloadTime: 2.5 },
-    g2: { id: 'g2', name: 'Cañón Bombardero', type: 'grenade', tier: 2, cost: 800, damage: 45, fireRate: 900, speed: 450, spread: 0.08, auto: false, color: '#aa00ff', explosive: true, radius: 80, magSize: 6, reloadTime: 3.0 },
-    g3: { id: 'g3', name: 'Devastador AoE', type: 'grenade', tier: 3, cost: 1500, damage: 80, fireRate: 800, speed: 500, spread: 0.05, auto: false, color: '#5500ff', explosive: true, radius: 100, magSize: 8, reloadTime: 3.5 },
-    l1: { id: 'l1', name: 'Emisor Láser', type: 'laser', tier: 1, cost: 350, damage: 2, fireRate: 40, speed: 1000, spread: 0.02, auto: true, color: '#00ffcc', magSize: 100, reloadTime: 2.0 },
-    l2: { id: 'l2', name: 'Rayo Continuo', type: 'laser', tier: 2, cost: 700, damage: 4, fireRate: 30, speed: 1200, spread: 0.01, auto: true, color: '#00ffaa', magSize: 150, reloadTime: 2.2 },
-    l3: { id: 'l3', name: 'Láser de Fusión', type: 'laser', tier: 3, cost: 1300, damage: 7, fireRate: 20, speed: 1500, spread: 0, auto: true, color: '#00ff55', magSize: 200, reloadTime: 2.5 }
+    p1: { id: 'p1', name: 'Pistola Básica', type: 'pistol', damage: 8, fireRate: 350, speed: 600, spread: 0.04, auto: false, color: '#aaa', magSize: 12, reloadTime: 1.2, cost: 0 },
+    p2: { id: 'p2', name: 'Pistola Táctica', type: 'pistol', damage: 15, fireRate: 300, speed: 700, spread: 0.03, auto: false, color: '#0f0', magSize: 15, reloadTime: 1.0, cost: 150 },
+    r1: { id: 'r1', name: 'Rifle Oxidado', type: 'rifle', damage: 4, fireRate: 150, speed: 700, spread: 0.15, auto: true, color: '#aaa', magSize: 30, reloadTime: 2.0, cost: 0 },
+    s1: { id: 's1', name: 'Escopeta Recortada', type: 'shotgun', damage: 6, fireRate: 1000, speed: 450, spread: 0.4, auto: false, bullets: 5, color: '#aaa', magSize: 2, reloadTime: 1.8, cost: 0 }
 };
 
 const ENEMY_CONFIGS = {
     basic: { color: '#ff4444', hp: 20, speed: 80, damage: 10, radius: 15, type: 'melee' },
     fast:  { color: '#ffaa00', hp: 12, speed: 150, damage: 6, radius: 12, type: 'melee' },
     tank:  { color: '#aa0000', hp: 50, speed: 40, damage: 15, radius: 18, type: 'ranged' },
-    summoner: { color: '#8800ff', hp: 40, speed: 50, damage: 5, radius: 16, type: 'summoner' },
-    healer: { color: '#00ff88', hp: 30, speed: 70, damage: 5, radius: 14, type: 'healer' },
-    shielded: { color: '#0088ff', hp: 35, speed: 60, damage: 12, radius: 18, type: 'shielded' },
     boss:  { color: '#ff00ff', hp: 1000, speed: 90, damage: 40, radius: 25, type: 'boss' }
 };
 
 const MUTATIONS = [
-    { id: 'hp', name: '+50% Vida Máxima', apply: p => { p.maxHp = Math.floor(p.maxHp * 1.5); p.hp += Math.floor(p.maxHp * 0.5); } },
-    { id: 'dmg', name: '+15% Daño Fijo', apply: p => p.dmgMult += 0.15 },
-    { id: 'dash', name: 'Dash Mejorado (-30% CD)', apply: p => p.dashCooldown *= 0.7 },
-    { id: 'bounce', name: 'Balas Rebotadoras (x1)', apply: p => p.bounceCount = (p.bounceCount||0) + 1 },
-    { id: 'shield', name: 'Aura Defensiva (-10% Daño)', apply: p => p.defenseMult = (p.defenseMult||1) * 0.9 },
-    { id: 'speed', name: 'Pies Ligeros (+15% Vel)', apply: p => p.baseSpeed *= 1.15 }
+    { id: 'hp', name: '+50% Vida', apply: p => { p.maxHp *= 1.5; p.hp = p.maxHp; } },
+    { id: 'dmg', name: '+15% Daño', apply: p => p.dmgMult += 0.15 },
+    { id: 'speed', name: '+15% Vel.', apply: p => p.baseSpeed *= 1.15 }
 ];
 
 let db = { users: {} }, currentUser = null, soundEnabled = true;
 
-function saveDB() { localStorage.setItem('neonThroneDB_v5', JSON.stringify(db)); }
+function saveDB() { localStorage.setItem('neonArmorDB_v1', JSON.stringify(db)); }
 function loadDB() {
-    const data = localStorage.getItem('neonThroneDB_v5');
+    const data = localStorage.getItem('neonArmorDB_v1');
     if (data) db = JSON.parse(data);
     if (!db.users) db.users = {};
     updateLeaderboard();
 }
 
 function updateLeaderboard() {
-    const container = document.getElementById('lbContainer');
+    const container = document.getElementById('lbContainer'); if(!container) return;
     container.innerHTML = '';
     let arr = Object.keys(db.users).map(k => ({ user: k, score: db.users[k].highScore || 0 })).filter(x => x.score > 0);
-    arr.sort((a, b) => b.score - a.score).slice(0, 20).forEach((entry, i) => {
-        const div = document.createElement('div'); div.className = 'lb-entry';
-        div.innerHTML = `<span>${i+1}. ${entry.user}</span><span>${entry.score}</span>`;
-        container.appendChild(div);
+    arr.sort((a, b) => b.score - a.score).slice(0, 10).forEach((entry, i) => {
+        container.innerHTML += `<div class="lb-entry"><span>${i+1}. ${entry.user}</span><span>${entry.score}</span></div>`;
     });
-}
-
-function checkHighscore(user, score) {
-    if (score <= 0) return; let u = db.users[user];
-    if (!u.highScore || score > u.highScore) { u.highScore = score; saveDB(); updateLeaderboard(); }
 }
 
 function randRange(min, max) { return min + Math.random() * (max - min); }
@@ -225,978 +173,378 @@ function randInt(min, max) { return Math.floor(randRange(min, max)); }
 function distance(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
 
 class AudioSystem {
-    constructor() { this.ctx = null; this.initialized = false; this.bgmOsc = null; this.bgmGain = null; this.bgmInterval = null; this.step = 0; }
+    constructor() { this.ctx = null; this.initialized = false; this.bgmOsc = null; this.bgmInterval = null; this.step = 0; }
     init() { if (!this.initialized && soundEnabled) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.initialized = true; } }
-    playTone(freq, type, duration, vol=0.1, slideFreq=null) {
-        if (!soundEnabled || !this.ctx) return; if(this.ctx.state === 'suspended') this.ctx.resume();
+    playTone(freq, type, duration, vol=0.1) {
+        if (!soundEnabled || !this.ctx) return;
         const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
         osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-        if (slideFreq) osc.frequency.exponentialRampToValueAtTime(slideFreq, this.ctx.currentTime + duration);
         gain.gain.setValueAtTime(vol, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
         osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + duration);
     }
-    sfxShoot() { this.playTone(600, 'square', 0.1, 0.05, 200); }
-    sfxHit() { this.playTone(150, 'sawtooth', 0.1, 0.1, 50); }
-    sfxEnemyDeath() { this.playTone(100, 'square', 0.2, 0.1, 10); }
-    sfxCoin() { this.playTone(800, 'sine', 0.1, 0.1, 1200); }
-    sfxPortal() { this.playTone(400, 'sine', 0.8, 0.2, 800); }
-    sfxBossSpawn() { this.playTone(100, 'sawtooth', 2.0, 0.3, 50); }
-    sfxExplosion() { this.playTone(80, 'square', 0.3, 0.2, 20); }
-    sfxReload() { this.playTone(800, 'triangle', 0.1, 0.05, 1200); }
-    sfxReloadFail() { this.playTone(200, 'sawtooth', 0.3, 0.1, 150); }
-    sfxReloadPerfect() { this.playTone(1200, 'sine', 0.2, 0.1, 1800); }
-    
+    sfxShoot() { this.playTone(600, 'square', 0.1, 0.05); }
+    sfxHit() { this.playTone(150, 'sawtooth', 0.1, 0.1); }
+    sfxEnemyDeath() { this.playTone(100, 'square', 0.2, 0.1); }
+    sfxPortal() { this.playTone(400, 'sine', 0.8, 0.2); }
     startBGM(type) {
-        if(!soundEnabled || !this.ctx) return;
+        if(!soundEnabled || !this.ctx || type !== 'menu') return;
         this.stopBGM();
-        if(type !== 'menu') return; 
-
-        this.bgmOsc = this.ctx.createOscillator(); this.bgmGain = this.ctx.createGain();
-        this.bgmOsc.type = 'square'; this.bgmGain.gain.value = 0.02;
-        this.bgmOsc.connect(this.bgmGain); this.bgmGain.connect(this.ctx.destination);
-        this.bgmOsc.start();
-        
-        const seq = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; 
-        const speed = 200;
-        
+        this.bgmOsc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+        this.bgmOsc.type = 'triangle'; g.gain.value = 0.02;
+        this.bgmOsc.connect(g); g.connect(this.ctx.destination); this.bgmOsc.start();
+        const seq = [261, 329, 392, 523, 392, 329];
         this.bgmInterval = setInterval(() => {
-            if(this.ctx.state === 'suspended') return;
             this.bgmOsc.frequency.setValueAtTime(seq[this.step % seq.length], this.ctx.currentTime);
-            this.bgmGain.gain.setValueAtTime(0.03, this.ctx.currentTime);
-            this.bgmGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
             this.step++;
-        }, speed);
+        }, 200);
     }
-    stopBGM() {
-        if(this.bgmInterval) clearInterval(this.bgmInterval);
-        if(this.bgmOsc) { this.bgmOsc.stop(); this.bgmOsc.disconnect(); this.bgmGain.disconnect(); }
-    }
+    stopBGM() { if(this.bgmInterval) clearInterval(this.bgmInterval); if(this.bgmOsc) this.bgmOsc.stop(); }
 }
 const audioSys = new AudioSystem();
 
-class Pool {
-    constructor(factory) { this.items = []; this.factory = factory; }
-    get() { return this.items.length > 0 ? this.items.pop() : this.factory(); }
-    release(item) { this.items.push(item); }
-}
+class Pool { constructor(factory) { this.items = []; this.factory = factory; } get() { return this.items.length > 0 ? this.items.pop() : this.factory(); } release(item) { this.items.push(item); } }
 
-class SpatialGrid {
-    constructor(w, h, size) { this.size = size; this.cols = Math.ceil(w/size); this.rows = Math.ceil(h/size); this.cells = new Map(); }
-    _key(x, y) { return `${Math.floor(x/this.size)},${Math.floor(y/this.size)}`; }
-    clear() { this.cells.clear(); }
-    add(entity) {
-        let k = this._key(entity.x, entity.y);
-        if(!this.cells.has(k)) this.cells.set(k, []);
-        this.cells.get(k).push(entity);
-    }
-    query(x, y, radius) {
-        let found = [];
-        let minC = Math.floor((x - radius)/this.size), maxC = Math.floor((x + radius)/this.size);
-        let minR = Math.floor((y - radius)/this.size), maxR = Math.floor((y + radius)/this.size);
-        for(let r=minR; r<=maxR; r++){
-            for(let c=minC; c<=maxC; c++){
-                let k = `${c},${r}`;
-                if(this.cells.has(k)) {
-                    let arr = this.cells.get(k);
-                    for(let i=0; i<arr.length; i++) {
-                        if(distance(x, y, arr[i].x, arr[i].y) <= radius) found.push(arr[i]);
-                    }
+class Joystick {
+    constructor(zoneId, knobId) {
+        this.zone = document.getElementById(zoneId);
+        this.knob = document.getElementById(knobId);
+        this.active = false;
+        this.dx = 0; this.dy = 0;
+        this.baseX = 0; this.baseY = 0;
+        
+        this.zone.addEventListener('touchstart', e => {
+            const rect = this.zone.getBoundingClientRect();
+            this.baseX = rect.left + rect.width/2;
+            this.baseY = rect.top + rect.height/2;
+            this.active = true;
+            this.handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, {passive: false});
+
+        window.addEventListener('touchmove', e => {
+            if(!this.active) return;
+            for(let t of e.touches) {
+                if(t.target === this.zone || this.active) {
+                    this.handleMove(t.clientX, t.clientY);
+                    break;
                 }
             }
-        }
-        return found;
+        }, {passive: false});
+
+        window.addEventListener('touchend', () => {
+            this.active = false; this.dx = 0; this.dy = 0;
+            this.knob.style.transform = `translate(-50%, -50%)`;
+        });
+    }
+
+    handleMove(tx, ty) {
+        let vx = tx - this.baseX;
+        let vy = ty - this.baseY;
+        let dist = Math.hypot(vx, vy);
+        let max = 60;
+        if(dist > max) { vx *= max/dist; vy *= max/dist; dist = max; }
+        this.dx = vx / max;
+        this.dy = vy / max;
+        this.knob.style.transform = `translate(calc(-50% + ${vx}px), calc(-50% + ${vy}px))`;
     }
 }
 
 class Level {
-    constructor(levelIndex, isSurvival) {
-        this.index = levelIndex;
-        this.cols = isSurvival ? 40 : 30 + levelIndex * 3; this.rows = isSurvival ? 40 : 30 + levelIndex * 3;
-        this.grid = []; this.tileSize = TILE_SIZE; this.floorTiles = []; this.flowField = [];
-        this.generate(isSurvival);
+    constructor(idx, survival) {
+        this.cols = survival ? 40 : 30 + idx*3; this.rows = survival ? 40 : 30 + idx*3;
+        this.grid = Array(this.rows).fill(0).map(() => Array(this.cols).fill(1));
+        this.tileSize = TILE_SIZE; this.floorTiles = []; this.flowField = [];
+        this.generate();
     }
-    generate(isSurvival) {
-        for (let y = 0; y < this.rows; y++) { this.grid[y] = []; for (let x = 0; x < this.cols; x++) this.grid[y][x] = 1; }
+    generate() {
         let x = Math.floor(this.cols/2), y = Math.floor(this.rows/2);
-        const maxFloorTiles = isSurvival ? Math.floor((this.cols*this.rows)*0.7) : Math.floor((this.cols*this.rows)*0.4);
-        let floorsCreated = 0;
-        this.grid[y][x] = 0; this.floorTiles.push({x, y}); floorsCreated++;
-        const dirs = [ {x:0, y:-1}, {x:0, y:1}, {x:-1, y:0}, {x:1, y:0} ];
-
-        while (floorsCreated < maxFloorTiles) {
-            let dir = dirs[randInt(0, dirs.length)]; let steps = randInt(2, 6);
-            for(let i=0; i<steps; i++){
-                x += dir.x; y += dir.y;
-                x = Math.max(1, Math.min(this.cols - 2, x)); y = Math.max(1, Math.min(this.rows - 2, y));
-                if (this.grid[y][x] === 1) { this.grid[y][x] = 0; this.floorTiles.push({x, y}); floorsCreated++; }
-            }
+        this.grid[y][x] = 0; this.floorTiles.push({x, y});
+        for(let i=0; i< (this.cols*this.rows)*0.4; i++) {
+            let d = [{x:0,y:1},{x:0,y:-1},{x:1,y:0},{x:-1,y:0}][randInt(0,4)];
+            x = Math.max(1, Math.min(this.cols-2, x+d.x));
+            y = Math.max(1, Math.min(this.rows-2, y+d.y));
+            if(this.grid[y][x] === 1) { this.grid[y][x] = 0; this.floorTiles.push({x, y}); }
         }
     }
-    buildFlowField(px, py, props = []) {
-        let tC = Math.floor(px/this.tileSize), tR = Math.floor(py/this.tileSize);
-        for (let r = 0; r < this.rows; r++) { this.flowField[r] = []; for (let c = 0; c < this.cols; c++) this.flowField[r][c] = 9999; }
-        if (tR < 0 || tR >= this.rows || tC < 0 || tC >= this.cols) return;
-        
+    buildFlowField(px, py, props) {
+        let tc = Math.floor(px/TILE_SIZE), tr = Math.floor(py/TILE_SIZE);
+        this.flowField = Array(this.rows).fill(0).map(() => Array(this.cols).fill(9999));
+        if(tr < 0 || tr >= this.rows || tc < 0 || tc >= this.cols) return;
+        let q = [{r:tr, c:tc}]; this.flowField[tr][tc] = 0;
         let blocked = Array(this.rows).fill(0).map(() => Array(this.cols).fill(false));
-        props.forEach(p => { 
-            if(p.active && p.type !== 'trap') {
-                let pr = Math.floor(p.y/this.tileSize), pc = Math.floor(p.x/this.tileSize);
-                if(pr >= 0 && pr < this.rows && pc >= 0 && pc < this.cols) blocked[pr][pc] = true; 
-            }
-        });
-        
-        let q = [{r: tR, c: tC}]; this.flowField[tR][tC] = 0;
-        let dirs = [[-1,0], [1,0], [0,-1], [0,1], [-1,-1], [1,-1], [-1,1], [1,1]];
+        props.forEach(p => { if(p.active && p.type !== 'trap') blocked[Math.floor(p.y/TILE_SIZE)][Math.floor(p.x/TILE_SIZE)] = true; });
         let head = 0;
         while(head < q.length) {
             let curr = q[head++];
-            for (let d of dirs) {
-                let nr = curr.r + d[0], nc = curr.c + d[1];
-                if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols && this.grid[nr][nc] === 0 && !blocked[nr][nc]) {
-                    let step = (d[0] !== 0 && d[1] !== 0) ? 1.414 : 1;
-                    if (this.flowField[nr][nc] > this.flowField[curr.r][curr.c] + step) {
-                        this.flowField[nr][nc] = this.flowField[curr.r][curr.c] + step;
-                        q.push({r: nr, c: nc});
+            [[-1,0],[1,0],[0,-1],[0,1]].forEach(d => {
+                let nr = curr.r+d[0], nc = curr.c+d[1];
+                if(nr>=0 && nr<this.rows && nc>=0 && nc<this.cols && this.grid[nr][nc] === 0 && !blocked[nr][nc]) {
+                    if(this.flowField[nr][nc] > this.flowField[curr.r][curr.c] + 1) {
+                        this.flowField[nr][nc] = this.flowField[curr.r][curr.c] + 1;
+                        q.push({r:nr, c:nc});
                     }
                 }
-            }
+            });
         }
     }
-    draw(ctx, camera) {
-        const sc = Math.max(0, Math.floor(camera.x/this.tileSize)), ec = Math.min(this.cols, Math.ceil((camera.x+CANVAS_WIDTH)/this.tileSize));
-        const sr = Math.max(0, Math.floor(camera.y/this.tileSize)), er = Math.min(this.rows, Math.ceil((camera.y+CANVAS_HEIGHT)/this.tileSize));
-        for (let y = sr; y < er; y++) {
-            for (let x = sc; x < ec; x++) {
-                if (this.grid[y][x] === 1) {
-                    ctx.fillStyle = '#0a0a10'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize, this.tileSize);
-                    ctx.strokeStyle = '#223'; ctx.strokeRect(x*this.tileSize, y*this.tileSize, this.tileSize, this.tileSize);
-                } else {
-                    ctx.fillStyle = '#111118'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize, this.tileSize);
-                }
-            }
-        }
+    checkCollision(x, y, r) {
+        let tx = Math.floor(x/TILE_SIZE), ty = Math.floor(y/TILE_SIZE);
+        if(ty < 0 || ty >= this.rows || tx < 0 || tx >= this.cols) return true;
+        return this.grid[ty][tx] === 1;
     }
-    getSpawnPoint() { return { x: (Math.floor(this.cols/2) + 0.5)*this.tileSize, y: (Math.floor(this.rows/2) + 0.5)*this.tileSize }; }
-    getRandomFloorPoint() { const t = this.floorTiles[randInt(0, this.floorTiles.length)]; return { x: (t.x + 0.5)*this.tileSize, y: (t.y + 0.5)*this.tileSize }; }
-    checkCollision(x, y, radius) {
-        const minX = Math.floor((x-radius)/this.tileSize), maxX = Math.floor((x+radius)/this.tileSize);
-        const minY = Math.floor((y-radius)/this.tileSize), maxY = Math.floor((y+radius)/this.tileSize);
-        for (let ty = minY; ty <= maxY; ty++) {
-            for (let tx = minX; tx <= maxX; tx++) {
-                if (ty >= 0 && ty < this.rows && tx >= 0 && tx < this.cols) {
-                    if (this.grid[ty][tx] === 1) {
-                        const rx = tx*this.tileSize, ry = ty*this.tileSize;
-                        const testX = Math.max(rx, Math.min(x, rx+this.tileSize)), testY = Math.max(ry, Math.min(y, ry+this.tileSize));
-                        if (distance(x, y, testX, testY) < radius) return true;
-                    }
-                } else return true;
+    draw(ctx, cam) {
+        ctx.fillStyle = '#0a0a10';
+        for(let r=0; r<this.rows; r++) {
+            for(let c=0; c<this.cols; c++) {
+                if(this.grid[r][c] === 1) ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE);
             }
         }
-        return false;
     }
 }
 
 class Prop {
-    constructor(type, x, y) {
-        this.type = type; this.x = x; this.y = y; this.active = true;
-        this.radius = type === 'barrel' ? 14 : 20;
-        this.hp = type === 'barrel' ? 10 : 40;
-        this.maxHp = this.hp;
-        this.timer = 0; this.state = 0;
-    }
+    constructor(type, x, y) { this.type = type; this.x = x; this.y = y; this.active = true; this.radius = 15; this.hp = 20; this.timer = 0; this.state = 0; }
     update(dt, game) {
         if(this.type === 'trap') {
-            this.timer -= dt;
-            if(this.timer <= 0) {
-                this.state = this.state === 0 ? 1 : 0;
-                this.timer = 2.0;
-            }
-            if(this.state === 1) {
-                if(distance(this.x, this.y, game.player.x, game.player.y) < this.radius + game.player.radius) game.player.takeDamage(10, game);
-                game.enemies.forEach(e => { if(distance(this.x, this.y, e.x, e.y) < this.radius + e.radius) e.takeDamage(10, game, false); });
-            }
-        }
-    }
-    takeDamage(amt, game) {
-        if(this.type === 'trap') return;
-        this.hp -= amt;
-        if(this.hp <= 0) {
-            this.active = false;
-            if(this.type === 'barrel') game.explosions.push(new Explosion(this.x, this.y, 100, 50, true, '#ff5500'));
-            game.spawnParticles(this.x, this.y, '#aaa', 15);
+            this.timer -= dt; if(this.timer <= 0) { this.state = this.state?0:1; this.timer = 2; }
+            if(this.state && distance(this.x, this.y, game.player.x, game.player.y) < 30) game.player.takeDamage(10, game);
         }
     }
     draw(ctx) {
-        if(this.type === 'barrel') {
-            ctx.fillStyle = '#aa2222'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ff5500'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius*0.6, 0, Math.PI*2); ctx.fill();
-        } else if(this.type === 'cover') {
-            ctx.fillStyle = '#444'; ctx.fillRect(this.x-15, this.y-15, 30, 30);
-            ctx.fillStyle = `rgba(0,0,0, ${1 - this.hp/this.maxHp})`; ctx.fillRect(this.x-15, this.y-15, 30, 30);
-        } else if(this.type === 'trap') {
-            ctx.fillStyle = '#222'; ctx.fillRect(this.x-15, this.y-15, 30, 30);
-            if(this.state === 1) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(this.x, this.y, 8, 0, Math.PI*2); ctx.fill(); }
-        }
-    }
-}
-
-class Weapon {
-    constructor(config) {
-        this.config = config; this.lastFired = 0; 
-        this.ammo = config.magSize; this.reloading = false; this.reloadTimer = 0;
-        this.perfectReload = false;
-    }
-    fire(x, y, targetX, targetY, game, time, isEnemy = false) {
-        if (this.reloading || time - this.lastFired < this.config.fireRate) return false;
-        if (!isEnemy && this.ammo <= 0) { this.startReload(); return false; }
-        
-        this.lastFired = time;
-        const angle = Math.atan2(targetY - y, targetX - x);
-        const bullets = this.config.bullets || 1;
-        const dmgMult = (isEnemy ? 1 : game.player.dmgMult) * (this.perfectReload ? 1.5 : 1);
-        
-        for (let i = 0; i < bullets; i++) {
-            const spread = (Math.random() - 0.5) * this.config.spread;
-            const finalAngle = angle + spread;
-            const vx = Math.cos(finalAngle) * this.config.speed;
-            const vy = Math.sin(finalAngle) * this.config.speed;
-            let b = game.pools.bullet.get();
-            b.init(x, y, vx, vy, !isEnemy, this.config.damage * dmgMult, this.config.color, this.config.explosive, this.config.radius, !isEnemy && game.player.bounceCount > 0 ? game.player.bounceCount : 0);
-            game.bullets.push(b);
-        }
-        audioSys.sfxShoot();
-        if(!isEnemy) {
-            this.ammo--; game.triggerScreenShake(this.config.type === 'shotgun' || this.config.type === 'grenade' ? 6 : 2);
-            if(this.ammo <= 0) this.startReload();
-        }
-        return true;
-    }
-    startReload() {
-        if(this.reloading) return;
-        this.reloading = true; this.reloadTimer = 0; this.perfectReload = false;
-        audioSys.sfxReload();
-    }
-    attemptActiveReload(game) {
-        if(!this.reloading) return;
-        const progress = this.reloadTimer / this.config.reloadTime;
-        if(progress > 0.5 && progress < 0.65) {
-            this.ammo = this.config.magSize; this.reloading = false; this.perfectReload = true;
-            audioSys.sfxReloadPerfect(); game.showDmgText(game.player.x, game.player.y-20, "PERFECT!", '#0f0');
-        } else {
-            this.reloadTimer = -0.5;
-            audioSys.sfxReloadFail(); game.showDmgText(game.player.x, game.player.y-20, "JAMMED", '#f00');
-        }
-    }
-    update(dt) {
-        if(this.reloading) {
-            this.reloadTimer += dt;
-            if(this.reloadTimer >= this.config.reloadTime) {
-                this.ammo = this.config.magSize; this.reloading = false; this.perfectReload = false;
-            }
-        }
-    }
-    draw(ctx, px, py, angle) {
-        ctx.save(); ctx.translate(px, py); ctx.rotate(angle);
-        ctx.fillStyle = this.config.color;
-        if(this.config.type === 'pistol') ctx.fillRect(10, -3, 12, 6);
-        else if(this.config.type === 'shotgun') { ctx.fillRect(10, -5, 18, 4); ctx.fillRect(10, 1, 18, 4); }
-        else if(this.config.type === 'rifle' || this.config.type === 'laser') ctx.fillRect(10, -2, 25, 4);
-        else if(this.config.type === 'sniper') { ctx.fillRect(10, -2, 35, 4); ctx.fillRect(15, -4, 10, 8); }
-        else if(this.config.type === 'grenade') { ctx.fillRect(10, -4, 20, 8); ctx.fillRect(30, -6, 5, 12); }
-        ctx.restore();
+        ctx.fillStyle = this.type === 'barrel' ? '#a22' : (this.type === 'cover' ? '#444' : '#222');
+        ctx.fillRect(this.x-15, this.y-15, 30, 30);
+        if(this.type === 'trap' && this.state) { ctx.fillStyle = '#f00'; ctx.beginPath(); ctx.arc(this.x, this.y, 5, 0, 7); ctx.fill(); }
     }
 }
 
 class Bullet {
-    init(x, y, vx, vy, isPlayer, damage, color, explosive = false, expRadius = 0, bounces = 0) {
-        this.x = x; this.y = y; this.vx = vx; this.vy = vy; this.isPlayer = isPlayer; this.damage = damage; this.color = color;
-        this.explosive = explosive; this.expRadius = expRadius; this.bounces = bounces;
-        this.radius = explosive ? 6 : (color.includes('cc') || color.includes('ff') ? 3 : 4);
-        this.lifeTime = 1.5; this.active = true; this.trail = [];
-    }
+    init(x, y, vx, vy, isP, dmg, color) { this.x = x; this.y = y; this.vx = vx; this.vy = vy; this.isPlayer = isP; this.damage = dmg; this.color = color; this.active = true; this.life = 1.5; }
     update(dt, level, game) {
-        this.trail.push({x: this.x, y: this.y}); if(this.trail.length > 5) this.trail.shift();
-        let nx = this.x + this.vx * dt, ny = this.y + this.vy * dt;
-        
-        let hitX = level.checkCollision(nx, this.y, this.radius) || this.checkPropCollision(nx, this.y, game.props);
-        let hitY = level.checkCollision(this.x, ny, this.radius) || this.checkPropCollision(this.x, ny, game.props);
-
-        if(hitX || hitY) {
-            if(this.bounces > 0 && !this.explosive) {
-                if(hitX) this.vx *= -1; if(hitY) this.vy *= -1;
-                this.bounces--;
-            } else {
-                this.active = false;
-                if(this.explosive) game.explosions.push(new Explosion(this.x, this.y, this.expRadius, this.damage, this.isPlayer, this.color));
-            }
-        }
-        if(!hitX) this.x = nx; if(!hitY) this.y = ny;
-        this.lifeTime -= dt; if (this.lifeTime <= 0) this.active = false;
+        this.x += this.vx * dt; this.y += this.vy * dt; this.life -= dt;
+        if(this.life <= 0 || level.checkCollision(this.x, this.y, 4)) this.active = false;
+        if(this.isPlayer) {
+            game.enemies.forEach(e => { if(e.active && distance(this.x, this.y, e.x, e.y) < e.radius) { e.takeDamage(this.damage, game); this.active = false; } });
+        } else if(distance(this.x, this.y, game.player.x, game.player.y) < 12) { game.player.takeDamage(this.damage, game); this.active = false; }
     }
-    checkPropCollision(x, y, props) {
-        for(let p of props) {
-            if(p.active && p.type !== 'trap' && distance(x, y, p.x, p.y) < this.radius + p.radius) {
-                p.takeDamage(this.damage, window.gameInstance); return true;
-            }
-        }
-        return false;
-    }
-    draw(ctx) {
-        if(this.trail.length > 1) {
-            ctx.strokeStyle = this.color; ctx.globalAlpha = 0.5; ctx.lineWidth = this.radius;
-            ctx.beginPath(); ctx.moveTo(this.trail[0].x, this.trail[0].y);
-            for(let i=1; i<this.trail.length; i++) ctx.lineTo(this.trail[i].x, this.trail[i].y);
-            ctx.stroke(); ctx.globalAlpha = 1.0;
-        }
-        ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius*0.5, 0, Math.PI * 2); ctx.fill();
-    }
-}
-
-class Explosion {
-    constructor(x, y, radius, damage, isPlayer, color) {
-        this.x = x; this.y = y; this.radius = radius; this.damage = damage; this.isPlayer = isPlayer; this.color = color;
-        this.lifeTime = 0.2; this.maxLife = 0.2; this.active = true; this.hitTargets = new Set();
-        audioSys.sfxExplosion(); window.gameInstance.triggerScreenShake(8);
-    }
-    update(dt, game) {
-        this.lifeTime -= dt; if (this.lifeTime <= 0) { this.active = false; return; }
-        const curRad = this.radius * (1 - this.lifeTime/this.maxLife);
-        
-        let targets = this.isPlayer ? game.enemies : [game.player];
-        targets.forEach(e => {
-            if (e.active && !this.hitTargets.has(e) && distance(this.x, this.y, e.x, e.y) < curRad + e.radius) {
-                e.takeDamage(this.damage, game, this.isPlayer); this.hitTargets.add(e);
-            }
-        });
-        game.props.forEach(p => {
-            if (p.active && !this.hitTargets.has(p) && distance(this.x, this.y, p.x, p.y) < curRad + p.radius) {
-                p.takeDamage(this.damage, game); this.hitTargets.add(p);
-            }
-        });
-    }
-    draw(ctx) {
-        ctx.globalAlpha = this.lifeTime / this.maxLife; ctx.fillStyle = this.color;
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.radius * (1 - this.lifeTime/this.maxLife), 0, Math.PI * 2); ctx.fill();
-        ctx.globalAlpha = 1.0;
-    }
-}
-
-class DamageText {
-    init(x, y, text, color) { this.x = x; this.y = y; this.text = text; this.color = color; this.life = 0.8; this.maxLife = 0.8; this.active = true; this.vy = -30; }
-    update(dt) { this.y += this.vy * dt; this.life -= dt; if(this.life <= 0) this.active = false; }
-    draw(ctx) { ctx.globalAlpha = this.life/this.maxLife; ctx.fillStyle = this.color; ctx.font = 'bold 16px Courier New'; ctx.fillText(this.text, this.x, this.y); ctx.globalAlpha = 1.0; }
-}
-
-class Player {
-    constructor(x, y, weaponConfig) {
-        this.x = x; this.y = y; this.radius = 12; this.active = true;
-        this.baseSpeed = 220; this.maxHp = 100; this.hp = 100;
-        this.weapon = new Weapon(weaponConfig);
-        this.isDashing = false; this.dashTimer = 0; this.dashCooldown = 1.5; this.dashCooldownTimer = 0;
-        this.invulnerableTimer = 0; this.angle = 0;
-        this.dmgMult = 1.0; this.defenseMult = 1.0; this.bounceCount = 0;
-    }
-    update(dt, game, level) {
-        if (this.dashCooldownTimer > 0) this.dashCooldownTimer -= dt;
-        if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
-        if (this.dashTimer > 0) { this.dashTimer -= dt; if (this.dashTimer <= 0) this.isDashing = false; }
-        
-        if (game.input.keys['ShiftLeft'] && this.dashCooldownTimer <= 0 && !this.isDashing) {
-            this.isDashing = true; this.dashTimer = 0.2; this.dashCooldownTimer = this.dashCooldown; this.invulnerableTimer = 0.2;
-        }
-
-        let dx = 0, dy = 0;
-        if (game.input.keys['KeyW']) dy -= 1; if (game.input.keys['KeyS']) dy += 1;
-        if (game.input.keys['KeyA']) dx -= 1; if (game.input.keys['KeyD']) dx += 1;
-        if (dx !== 0 || dy !== 0) { const len = Math.hypot(dx, dy); dx /= len; dy /= len; }
-
-        const curSpeed = this.isDashing ? this.baseSpeed * 3 : this.baseSpeed;
-        let nx = this.x + dx * curSpeed * dt, ny = this.y + dy * curSpeed * dt;
-        
-        if (!level.checkCollision(nx, this.y, this.radius) && !this.checkPropCollision(nx, this.y, game.props)) this.x = nx;
-        if (!level.checkCollision(this.x, ny, this.radius) && !this.checkPropCollision(this.x, ny, game.props)) this.y = ny;
-
-        const wmx = game.input.mouse.x + game.camera.x, wmy = game.input.mouse.y + game.camera.y;
-        this.angle = Math.atan2(wmy - this.y, wmx - this.x);
-
-        this.weapon.update(dt);
-        if (game.input.keys['KeyR'] && !game.prevKeys['KeyR']) this.weapon.attemptActiveReload(game);
-        else if (game.input.keys['KeyR'] && !this.weapon.reloading && this.weapon.ammo < this.weapon.config.magSize) this.weapon.startReload();
-
-        if (game.input.mouse.down || (this.weapon.config.auto && game.input.mouse.down)) {
-            this.weapon.fire(this.x, this.y, wmx, wmy, game, game.time);
-            if(!this.weapon.config.auto) game.input.mouse.down = false;
-        }
-    }
-    checkPropCollision(x, y, props) {
-        for(let p of props) if(p.active && p.type !== 'trap' && distance(x, y, p.x, p.y) < this.radius + p.radius) return true;
-        return false;
-    }
-    takeDamage(amount, game) {
-        if (this.invulnerableTimer > 0) return;
-        let finalDmg = Math.floor(amount * this.defenseMult);
-        this.hp -= finalDmg; this.invulnerableTimer = 0.5;
-        audioSys.sfxHit(); game.triggerScreenShake(5); game.spawnParticles(this.x, this.y, '#ff0055', 10);
-        game.showDmgText(this.x, this.y, finalDmg, '#f00');
-        if (this.hp <= 0) { this.hp = 0; this.active = false; }
-    }
-    draw(ctx) {
-        ctx.fillStyle = (this.invulnerableTimer > 0 && Math.floor(this.invulnerableTimer * 20) % 2 === 0) ? '#fff' : '#00ffcc';
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius*0.4, 0, Math.PI*2); ctx.fill();
-        this.weapon.draw(ctx, this.x, this.y, this.angle);
-    }
+    draw(ctx) { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, 4, 0, 7); ctx.fill(); }
 }
 
 class Enemy {
     constructor(type, x, y, scale) {
-        this.type = type; this.x = x; this.y = y; this.active = true;
-        const conf = ENEMY_CONFIGS[type];
-        this.radius = conf.radius; this.maxHp = Math.floor(conf.hp * scale); this.hp = this.maxHp;
-        this.speed = conf.speed * (1 + (scale-1)*0.1); this.damage = Math.floor(conf.damage * scale); 
-        this.color = conf.color; this.eType = conf.type;
-        this.flashTimer = 0; this.actionTimer = 0;
-        
-        if(this.eType === 'ranged' || this.eType === 'boss') this.weapon = new Weapon({ damage: this.damage, fireRate: 2000, speed: 300, spread: 0.1, color: '#ffaa00', explosive: true, radius: 40, magSize: 999 });
-        if(this.type === 'boss') { 
-            this.summonTimer = randRange(7, 10); this.bossState = 'MOVE'; this.bossAimTimer = 0; this.bossAimAngle = 0; this.phase2 = false; 
-        }
+        const c = ENEMY_CONFIGS[type];
+        this.x = x; this.y = y; this.type = type; this.active = true;
+        this.hp = c.hp * scale; this.speed = c.speed; this.radius = c.radius; this.damage = c.damage; this.color = c.color;
+        this.summonTimer = 8;
     }
-    checkLOS(player, level) {
-        let x0 = this.x, y0 = this.y, x1 = player.x, y1 = player.y;
-        let dist = distance(x0, y0, x1, y1), steps = dist / 15;
-        let dx = (x1 - x0) / steps, dy = (y1 - y0) / steps;
-        for (let i = 0; i < steps; i++) { if (level.checkCollision(x0, y0, 1)) return false; x0 += dx; y0 += dy; }
-        return true;
-    }
+    takeDamage(amt, game) { this.hp -= amt; if(this.hp <= 0) { this.active = false; game.score += 10; audioSys.sfxEnemyDeath(); } }
     update(dt, game, level) {
-        if (this.flashTimer > 0) this.flashTimer -= dt;
-        const player = game.player; const dist = distance(this.x, this.y, player.x, player.y);
-        
-        if (this.type === 'boss') {
-            if(this.hp < this.maxHp/2 && !this.phase2) {
-                this.phase2 = true; this.speed *= 1.5; this.weapon.config.fireRate *= 0.6; this.color = '#ff0000';
-                game.spawnParticles(this.x, this.y, '#f00', 50); audioSys.sfxBossSpawn();
+        let dist = distance(this.x, this.y, game.player.x, game.player.y);
+        if(this.type === 'boss') {
+            this.summonTimer -= dt;
+            if(this.summonTimer <= 0) {
+                this.summonTimer = 8;
+                for(let i=0; i<2; i++) {
+                    let sx = this.x + randRange(-40,40), sy = this.y + randRange(-40,40);
+                    if(!level.checkCollision(sx, sy, 10)) game.enemies.push(new Enemy('fast', sx, sy, 1));
+                }
             }
-            if (this.bossState === 'MOVE') {
-                this.summonTimer -= dt;
-                if(this.summonTimer <= 0) {
-                    this.summonTimer = this.phase2 ? randRange(5, 8) : randRange(7, 10);
-                    let spawned = false;
-                    for(let k=0; k<3; k++) {
-                        let ang = Math.random()*Math.PI*2;
-                        let sx = this.x + Math.cos(ang)*40;
-                        let sy = this.y + Math.sin(ang)*40;
-                        if(!level.checkCollision(sx, sy, 12)) {
-                            game.enemies.push(new Enemy('fast', sx, sy, this.maxHp/1000));
-                            spawned = true;
-                        }
-                    }
-                    if(spawned) game.spawnParticles(this.x, this.y, '#ffaa00', 30);
-                }
-                
-                if (Math.random() < 0.005) { 
-                    this.bossState = 'AIM'; this.bossAimTimer = this.phase2 ? 0.6 : 1.0;
-                    this.bossAimAngle = Math.atan2(player.y - this.y, player.x - this.x);
-                    audioSys.sfxLaserWarn();
-                } else this.moveAI(dt, player, level, dist, game);
-            } else if (this.bossState === 'AIM') {
-                this.bossAimTimer -= dt;
-                if (this.bossAimTimer <= 0) {
-                    this.bossState = 'FIRE'; this.bossAimTimer = 0.5; audioSys.sfxLaserFire();
-                    let lx = this.x, ly = this.y, hitPlayer = false;
-                    for(let i=0; i<1000; i+=10) {
-                        lx += Math.cos(this.bossAimAngle)*10; ly += Math.sin(this.bossAimAngle)*10;
-                        if(level.checkCollision(lx, ly, 1)) break;
-                        if(distance(lx, ly, player.x, player.y) < player.radius + 15) hitPlayer = true;
-                    }
-                    if(hitPlayer) player.takeDamage(this.damage * 2, game);
-                    game.customParticles.push({ type: 'laser', x: this.x, y: this.y, angle: this.bossAimAngle, life: 0.5 });
-                }
-            } else if (this.bossState === 'FIRE') { this.bossAimTimer -= dt; if(this.bossAimTimer <= 0) this.bossState = 'MOVE'; }
-        } else {
-            this.actionTimer -= dt;
-            if (this.eType === 'ranged' && dist < 400 && dist > 100 && this.checkLOS(player, level)) this.weapon.fire(this.x, this.y, player.x, player.y, game, game.time, true);
-            else if (this.eType === 'summoner' && this.actionTimer <= 0 && dist < 600) {
-                let spawnRads = [0, Math.PI/2, Math.PI, Math.PI*1.5];
-                let spawned = false;
-                for(let a of spawnRads) {
-                    let sx = this.x + Math.cos(a)*30;
-                    let sy = this.y + Math.sin(a)*30;
-                    if(!level.checkCollision(sx, sy, 15)) {
-                        game.enemies.push(new Enemy('basic', sx, sy, 1));
-                        spawned = true; break;
-                    }
-                }
-                if(spawned) { this.actionTimer = 5.0; game.spawnParticles(this.x, this.y, '#8800ff', 20); }
-                else this.actionTimer = 1.0; 
-            } else if (this.eType === 'healer' && this.actionTimer <= 0) {
-                let target = null, minHp = 9999;
-                game.enemies.forEach(e => { if(e !== this && e.hp < e.maxHp && e.hp < minHp) { target = e; minHp = e.hp; } });
-                if(target && distance(this.x, this.y, target.x, target.y) < 150) {
-                    target.hp = Math.min(target.maxHp, target.hp + 20); this.actionTimer = 3.0;
-                    game.spawnParticles(target.x, target.y, '#0f0', 10);
-                } else if(target) this.moveAI(dt, target, level, distance(this.x,this.y,target.x,target.y), game, true);
-                else this.moveAI(dt, player, level, dist, game);
-            } else this.moveAI(dt, player, level, dist, game);
+        }
+        let c = Math.floor(this.x/TILE_SIZE), r = Math.floor(this.y/TILE_SIZE);
+        if(level.flowField[r] && level.flowField[r][c] < 9999) {
+            let bestV = 9999, dx = 0, dy = 0;
+            [[-1,0],[1,0],[0,-1],[0,1]].forEach(d => {
+                let nv = level.flowField[r+d[1]]?.[c+d[0]] ?? 9999;
+                if(nv < bestV) { bestV = nv; dx = d[0]; dy = d[1]; }
+            });
+            this.x += dx * this.speed * dt; this.y += dy * this.speed * dt;
         }
     }
-    moveAI(dt, target, level, dist, game, isAlly=false) {
-        if (dist <= 0) return; let dx = 0, dy = 0;
-        
-        if (isAlly || this.checkLOS(target, level)) { dx = (target.x - this.x) / dist; dy = (target.y - this.y) / dist; } 
-        else {
-            let c = Math.floor(this.x / level.tileSize), r = Math.floor(this.y / level.tileSize);
-            let minVal = 9999, bestR = r, bestC = c, dirs = [[-1,0], [1,0], [0,-1], [0,1], [-1,-1], [1,-1], [-1,1], [1,1]];
-            for (let d of dirs) {
-                let nr = r + d[0], nc = c + d[1];
-                if (nr >= 0 && nr < level.rows && nc >= 0 && nc < level.cols && level.flowField[nr] && level.flowField[nr][nc] < minVal) {
-                    minVal = level.flowField[nr][nc]; bestR = nr; bestC = nc;
-                }
-            }
-            if (minVal < 9999 && (bestR !== r || bestC !== c)) {
-                let tx = bestC * level.tileSize + level.tileSize/2, ty = bestR * level.tileSize + level.tileSize/2;
-                let ddist = distance(this.x, this.y, tx, ty);
-                if (ddist > 0) { dx = (tx - this.x)/ddist; dy = (ty - this.y)/ddist; }
-            } else { dx = (target.x - this.x)/dist; dy = (target.y - this.y)/dist; }
-        }
-        
-        let sepX = 0, sepY = 0, count = 0;
-        let neighbors = game.spatialGrid.query(this.x, this.y, this.radius*3);
-        for(let n of neighbors) {
-            if(n !== this && distance(this.x, this.y, n.x, n.y) > 0) {
-                let diffX = this.x - n.x, diffY = this.y - n.y;
-                let len = Math.hypot(diffX, diffY);
-                sepX += diffX/len; sepY += diffY/len; count++;
-            }
-        }
-        if(count > 0) { dx += (sepX/count)*1.5; dy += (sepY/count)*1.5; let len = Math.hypot(dx,dy); dx/=len; dy/=len; }
+    draw(ctx) { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, 7); ctx.fill(); }
+}
 
-        let nx = this.x + dx * this.speed * dt, ny = this.y + dy * this.speed * dt;
-        if (!level.checkCollision(nx, this.y, this.radius) && !this.checkPropCollision(nx, this.y, game.props)) this.x = nx;
-        if (!level.checkCollision(this.x, ny, this.radius) && !this.checkPropCollision(this.x, ny, game.props)) this.y = ny;
+class Player {
+    constructor(x, y, w) {
+        this.x = x; this.y = y; this.hp = 100; this.maxHp = 100; this.active = true;
+        this.weapon = w; this.baseSpeed = 220; this.dmgMult = 1.0; this.ammo = w.magSize;
+        this.reloading = false; this.reloadTimer = 0; this.angle = 0;
     }
-    checkPropCollision(x, y, props) {
-        for(let p of props) if(p.active && distance(x, y, p.x, p.y) < this.radius + p.radius) return true;
-        return false;
+    takeDamage(amt, game) { this.hp -= amt; audioSys.sfxHit(); if(this.hp <= 0) this.active = false; }
+    update(dt, game, level) {
+        let dx = 0, dy = 0;
+        if(game.touchMode) {
+            dx = game.joystickL.dx; dy = game.joystickL.dy;
+            if(game.joystickR.active) {
+                this.angle = Math.atan2(game.joystickR.dy, game.joystickR.dx);
+                this.fire(game);
+            }
+        } else {
+            if(game.input.keys['KeyW']) dy--; if(game.input.keys['KeyS']) dy++;
+            if(game.input.keys['KeyA']) dx--; if(game.input.keys['KeyD']) dx++;
+            this.angle = Math.atan2((game.input.mouse.y+game.camera.y)-this.y, (game.input.mouse.x+game.camera.x)-this.x);
+            if(game.input.mouse.down) this.fire(game);
+        }
+        if(dx || dy) {
+            let mag = Math.hypot(dx, dy);
+            let nx = this.x + (dx/mag) * this.baseSpeed * dt;
+            let ny = this.y + (dy/mag) * this.baseSpeed * dt;
+            if(!level.checkCollision(nx, this.y, 10)) this.x = nx;
+            if(!level.checkCollision(this.x, ny, 10)) this.y = ny;
+        }
+        if(this.reloading) { this.reloadTimer -= dt; if(this.reloadTimer <= 0) { this.ammo = this.weapon.magSize; this.reloading = false; } }
     }
-    takeDamage(amount, game, fromPlayer=true) {
-        let dmg = amount;
-        if(this.eType === 'shielded') {
-            let px = game.player.x, py = game.player.y;
-            let angleToPlayer = Math.atan2(py - this.y, px - this.x);
-            let angleOfHit = Math.atan2(-Math.sin(angleToPlayer), -Math.cos(angleToPlayer)); 
-            if(Math.random() < 0.5) { game.showDmgText(this.x, this.y, 'BLOCK', '#08f'); return; } 
-        }
-        this.hp -= dmg; this.flashTimer = 0.1;
-        game.showDmgText(this.x, this.y, dmg, '#fff');
-        if (this.hp <= 0) {
-            this.active = false; audioSys.sfxEnemyDeath();
-            if (game.mode === 'STORY' && fromPlayer) game.score += (this.type === 'boss' ? 500 : (this.type === 'tank' ? 15 : 5));
-            game.spawnParticles(this.x, this.y, this.color, this.radius);
-            let dropRate = game.mode === 'SURVIVAL' ? 0.05 : 0.15;
-            if (this.type === 'boss') for(let i=0; i<15; i++) game.items.push(new Item('coin', this.x + randRange(-30,30), this.y + randRange(-30,30)));
-            else if (Math.random() < dropRate) game.items.push(new Item('coin', this.x, this.y));
-            if (Math.random() < 0.05) game.items.push(new Item('heal', this.x, this.y));
-        }
+    fire(game) {
+        if(this.reloading || Date.now() - (this.lastFired || 0) < this.weapon.fireRate) return;
+        this.lastFired = Date.now(); this.ammo--;
+        let b = game.pools.bullet.get();
+        b.init(this.x, this.y, Math.cos(this.angle)*this.weapon.speed, Math.sin(this.angle)*this.weapon.speed, true, this.weapon.damage*this.dmgMult, this.weapon.color);
+        game.bullets.push(b); audioSys.sfxShoot();
+        if(this.ammo <= 0) { this.reloading = true; this.reloadTimer = this.weapon.reloadTime; }
     }
-    draw(ctx) {
-        ctx.fillStyle = this.flashTimer > 0 ? '#fff' : this.color;
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius*0.3, 0, Math.PI*2); ctx.fill();
-        
-        if(this.eType === 'shielded') {
-            ctx.strokeStyle = '#0088ff'; ctx.lineWidth = 4; ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius+4, -Math.PI/2, Math.PI/2); ctx.stroke();
-        }
-        if (this.type === 'boss') {
-            ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.moveTo(this.x-12, this.y-this.radius+2); ctx.lineTo(this.x-16, this.y-this.radius-12); ctx.lineTo(this.x-4, this.y-this.radius-4); ctx.lineTo(this.x, this.y-this.radius-16); ctx.lineTo(this.x+4, this.y-this.radius-4); ctx.lineTo(this.x+16, this.y-this.radius-12); ctx.lineTo(this.x+12, this.y-this.radius+2); ctx.fill();
-            if (this.bossState === 'AIM') { ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x + Math.cos(this.bossAimAngle)*1000, this.y + Math.sin(this.bossAimAngle)*1000); ctx.stroke(); }
-        }
-        if(this.hp < this.maxHp) { ctx.fillStyle = '#f00'; ctx.fillRect(this.x - 15, this.y - this.radius - 8, 30, 4); ctx.fillStyle = '#0f0'; ctx.fillRect(this.x - 15, this.y - this.radius - 8, 30 * (this.hp/this.maxHp), 4); }
-    }
+    draw(ctx) { ctx.fillStyle = '#0f8'; ctx.beginPath(); ctx.arc(this.x, this.y, 12, 0, 7); ctx.fill(); }
 }
 
 class Item {
-    constructor(type, x, y) { this.type = type; this.x = x; this.y = y; this.radius = 8; this.floatOffset = Math.random() * Math.PI * 2; this.lifeTime = 10; }
-    update(dt) { this.lifeTime -= dt; }
-    draw(ctx, time) {
-        if(this.lifeTime < 3 && Math.floor(this.lifeTime * 10) % 2 === 0) return;
-        const yOff = Math.sin(time/200 + this.floatOffset) * 5;
-        ctx.fillStyle = this.type === 'heal' ? '#0f0' : '#ffd700'; ctx.beginPath();
-        if(this.type==='coin') { ctx.arc(this.x, this.y + yOff, this.radius, 0, Math.PI*2); ctx.fill(); }
-        else ctx.fillRect(this.x-6, this.y+yOff-6, 12, 12);
-    }
-}
-
-class Particle {
-    init(x, y, color) {
-        this.x = x; this.y = y; this.color = color; this.active = true;
-        const angle = Math.random() * Math.PI * 2, speed = Math.random() * 150 + 50;
-        this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
-        this.life = 0.5 + Math.random() * 0.5; this.maxLife = this.life;
-    }
-    update(dt) { this.x += this.vx * dt; this.y += this.vy * dt; this.life -= dt; if(this.life <= 0) this.active = false; }
-    draw(ctx) { ctx.globalAlpha = this.life / this.maxLife; ctx.fillStyle = this.color; ctx.fillRect(this.x - 2, this.y - 2, 4, 4); ctx.globalAlpha = 1.0; }
-}
-
-class Portal {
-    constructor(x, y) { this.x = x; this.y = y; this.radius = 20; this.angle = 0; }
-    draw(ctx, dt) {
-        this.angle += dt * 2; ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 3; ctx.strokeRect(-15, -15, 30, 30);
-        ctx.rotate(-this.angle*2); ctx.strokeStyle = '#ff00ff'; ctx.strokeRect(-10, -10, 20, 20); ctx.restore();
-    }
+    constructor(t, x, y) { this.type = t; this.x = x; this.y = y; this.life = 10; }
+    update(dt) { this.life -= dt; }
+    draw(ctx) { if(this.life < 3 && Math.floor(this.life*10)%2) return; ctx.fillStyle = this.type==='coin'?'#fd0':'#0f0'; ctx.beginPath(); ctx.arc(this.x, this.y, 8, 0, 7); ctx.fill(); }
 }
 
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas'); this.ctx = this.canvas.getContext('2d');
-        this.input = { keys: {}, mouse: { x: 0, y: 0, down: false } }; this.prevKeys = {};
-        window.gameInstance = this;
-        
-        window.addEventListener('keydown', e => { this.input.keys[e.code] = true; if(e.code === 'Escape') this.togglePause(); });
-        window.addEventListener('keyup', e => { this.input.keys[e.code] = false; });
-        this.canvas.addEventListener('mousemove', e => { const r = this.canvas.getBoundingClientRect(); this.input.mouse.x = e.clientX - r.left; this.input.mouse.y = e.clientY - r.top; });
+        this.input = { keys: {}, mouse: { x: 0, y: 0, down: false } };
+        window.addEventListener('keydown', e => this.input.keys[e.code] = true);
+        window.addEventListener('keyup', e => this.input.keys[e.code] = false);
+        this.canvas.addEventListener('mousemove', e => { let r = this.canvas.getBoundingClientRect(); this.input.mouse.x = (e.clientX-r.left)*(1024/r.width); this.input.mouse.y = (e.clientY-r.top)*(768/r.height); });
         this.canvas.addEventListener('mousedown', () => this.input.mouse.down = true);
         this.canvas.addEventListener('mouseup', () => this.input.mouse.down = false);
-
-        this.pools = {
-            bullet: new Pool(() => new Bullet()),
-            particle: new Pool(() => new Particle()),
-            dmgText: new Pool(() => new DamageText())
-        };
-        this.spatialGrid = new SpatialGrid(CANVAS_WIDTH*5, CANVAS_HEIGHT*5, 128);
-
-        this.state = 'LOGIN'; this.mode = 'STORY'; this.lastTime = 0; this.time = 0;
-        this.camera = { x: 0, y: 0 }; this.shakeTime = 0; this.shakeMagnitude = 0; this.flowTimer = 0;
         
-        this.resetGameData(); this.setupDOM(); loadDB();
-    }
-
-    resetGameData() {
-        this.player = null; this.level = null; this.bullets = []; this.enemies = []; this.props = [];
-        this.items = []; this.particles = []; this.explosions = []; this.customParticles = []; this.dmgTexts = []; this.portal = null;
-        this.levelIndex = 0; this.score = 0; this.runCoins = 0; this.targetLevels = randInt(5, 11);
-        this.wave = 1; this.waveTimer = 0; this.bossSpawned = false; this.flowTimer = 0;
-        
-        this.mutationLevels = []; this.mutationShownForWave = {};
-        let pool = []; for(let i=1; i<this.targetLevels-1; i++) pool.push(i);
-        while(this.mutationLevels.length < 3 && pool.length > 0) {
-            let idx = randInt(0, pool.length);
-            this.mutationLevels.push(pool.splice(idx, 1)[0]);
+        this.touchMode = 'ontouchstart' in window;
+        if(this.touchMode) {
+            document.getElementById('mobileHUD').style.display = 'block';
+            this.joystickL = new Joystick('moveZone', 'moveKnob');
+            this.joystickR = new Joystick('fireZone', 'fireKnob');
+            document.getElementById('btnMobilePause').onclick = () => this.togglePause();
         }
-    }
 
+        this.pools = { bullet: new Pool(() => new Bullet()) };
+        this.state = 'LOGIN'; this.camera = {x:0, y:0}; loadDB(); this.setupDOM();
+    }
     setupDOM() {
         document.getElementById('btnLogin').onclick = () => {
-            const user = document.getElementById('usernameInput').value.trim(), pass = document.getElementById('passwordInput').value;
-            if(user && pass) {
-                if(db.users[user] && db.users[user].password !== pass) return alert('Contraseña incorrecta');
-                if(!db.users[user]) { db.users[user] = { password: pass, coins: 0, wins: 0, deaths: 0, unlocks: ['p1', 's1', 'r1'], selectedWeapon: 'p1', highScore: 0 }; saveDB(); }
-                currentUser = user; this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU';
-                audioSys.init(); audioSys.startBGM('menu');
+            let u = document.getElementById('usernameInput').value;
+            if(u) {
+                if(!db.users[u]) db.users[u] = { coins:0, wins:0, deaths:0, highScore:0 };
+                currentUser = u; this.state = 'MENU'; this.updateUI(); audioSys.init(); audioSys.startBGM('menu');
             }
         };
-        document.getElementById('btnLogout').onclick = () => { currentUser = null; document.getElementById('passwordInput').value=''; this.setUIState('loginScreen'); this.state='LOGIN'; audioSys.stopBGM(); };
-        document.getElementById('btnStory').onclick = () => this.startRun('STORY');
-        document.getElementById('btnSurvival').onclick = () => this.startRun('SURVIVAL');
-        document.getElementById('btnStore').onclick = () => { this.renderStore(); this.setUIState('storeScreen'); this.state = 'STORE'; };
-        document.getElementById('btnBackToMenu').onclick = () => { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; };
-        document.getElementById('btnSound').onclick = () => this.toggleSound();
-        document.getElementById('btnPauseSound').onclick = () => this.toggleSound();
+        document.getElementById('btnStory').onclick = () => this.start('STORY');
+        document.getElementById('btnSurvival').onclick = () => this.start('SURVIVAL');
         document.getElementById('btnResume').onclick = () => this.togglePause();
-        document.getElementById('btnQuit').onclick = () => { this.endRun(false); audioSys.startBGM('menu'); };
-        document.getElementById('btnReturnDead').onclick = () => { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; audioSys.startBGM('menu'); };
-        document.getElementById('btnReturnWin').onclick = () => { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; audioSys.startBGM('menu'); };
+        document.getElementById('btnQuit').onclick = () => { this.state = 'MENU'; audioSys.startBGM('menu'); this.updateUI(); };
+        document.querySelectorAll('[id^=btnReturn]').forEach(b => b.onclick = () => { this.state = 'MENU'; audioSys.startBGM('menu'); this.updateUI(); });
     }
-
-    updateMenuUI() {
-        const u = db.users[currentUser];
-        document.getElementById('uiUser').innerText = currentUser; document.getElementById('uiWins').innerText = u.wins;
-        document.getElementById('uiDeaths').innerText = u.deaths; document.getElementById('uiCoins').innerText = u.coins;
+    updateUI() {
+        this.setScreen(this.state === 'MENU' ? 'menuScreen' : (this.state === 'LOGIN' ? 'loginScreen' : null));
+        if(currentUser) {
+            document.getElementById('uiUser').innerText = currentUser;
+            document.getElementById('uiCoins').innerText = db.users[currentUser].coins;
+            document.getElementById('uiWins').innerText = db.users[currentUser].wins;
+            document.getElementById('uiDeaths').innerText = db.users[currentUser].deaths;
+        }
     }
-
-    toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundStatus').innerText = soundEnabled?'ON':'OFF'; document.getElementById('pauseSoundStatus').innerText = soundEnabled?'ON':'OFF'; if(soundEnabled) { audioSys.init(); if(this.state === 'MENU') audioSys.startBGM('menu'); } else audioSys.stopBGM(); }
-    setUIState(screenId) { document.querySelectorAll('.screen').forEach(el => el.classList.remove('active')); if (screenId) document.getElementById(screenId).classList.add('active'); }
-
-    renderStore() {
-        const u = db.users[currentUser]; document.getElementById('storeCoins').innerText = u.coins;
-        const cont = document.getElementById('storeContainer'); cont.innerHTML = '';
-        Object.values(WEAPONS).forEach(w => {
-            const isUnlocked = u.unlocks.includes(w.id), isSelected = u.selectedWeapon === w.id;
-            const div = document.createElement('div'); div.className = `weapon-card ${isUnlocked ? 'unlocked' : ''} ${isSelected ? 'selected' : ''}`;
-            let html = `<h4>${w.name}</h4><p>Daño: ${w.damage} | Munición: ${w.magSize}</p>`;
-            if (isUnlocked) { html += `<p style="color:var(--accent-color)">DESBLOQUEADA</p>`; div.onclick = () => { u.selectedWeapon = w.id; saveDB(); this.renderStore(); }; } 
-            else { html += `<p class="price">Costo: ${w.cost} Cr</p><button class="buy-btn">COMPRAR</button>`; }
-            div.innerHTML = html;
-            if(!isUnlocked) { div.querySelector('.buy-btn').onclick = (e) => { e.stopPropagation(); if(u.coins >= w.cost) { u.coins -= w.cost; u.unlocks.push(w.id); u.selectedWeapon = w.id; saveDB(); this.renderStore(); } else alert('Créditos insuficientes.'); }; }
-            cont.appendChild(div);
-        });
+    setScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+    togglePause() { if(this.state === 'PLAYING') { this.state = 'PAUSED'; this.setScreen('pauseScreen'); } else if(this.state === 'PAUSED') { this.state = 'PLAYING'; this.setScreen(null); } }
+    
+    start(mode) {
+        this.mode = mode; this.levelIndex = 0; this.score = 0; this.runCoins = 0; this.state = 'PLAYING';
+        this.mutationCount = 0; this.mutationLevels = [1, 3, 5];
+        this.setScreen(null); audioSys.stopBGM();
+        this.player = new Player(0,0, WEAPONS.p1);
+        this.loadLevel();
     }
-
-    startRun(mode) {
-        audioSys.init(); this.mode = mode; this.resetGameData();
-        const u = db.users[currentUser]; this.player = new Player(0, 0, WEAPONS[u.selectedWeapon]);
-        this.setUIState(null); this.state = 'PLAYING'; audioSys.stopBGM();
-        if(this.mode === 'STORY') this.loadLevel();
-        else { this.level = new Level(0, true); this.player.x = this.level.getSpawnPoint().x; this.player.y = this.level.getSpawnPoint().y; }
-    }
-
     loadLevel() {
-        this.bullets.forEach(b => this.pools.bullet.release(b)); this.particles.forEach(p => this.pools.particle.release(p));
-        this.bullets = []; this.enemies = []; this.props = []; this.items = []; this.explosions = []; this.portal = null;
-        this.level = new Level(this.levelIndex, false);
-        const spawn = this.level.getSpawnPoint(); this.player.x = spawn.x; this.player.y = spawn.y;
-        
-        const numProps = randInt(5, 15);
-        for(let i=0; i<numProps; i++) {
-            let p = this.level.getRandomFloorPoint(); while (distance(p.x, p.y, this.player.x, this.player.y) < 200) p = this.level.getRandomFloorPoint();
-            let type = Math.random() < 0.4 ? 'barrel' : (Math.random() < 0.5 ? 'cover' : 'trap');
-            this.props.push(new Prop(type, p.x, p.y));
+        this.level = new Level(this.levelIndex, this.mode === 'SURVIVAL');
+        let s = this.level.getSpawnPoint(); this.player.x = s.x; this.player.y = s.y;
+        this.enemies = []; this.bullets = []; this.props = []; this.items = []; this.portal = null;
+        for(let i=0; i<10; i++) {
+            let p = this.level.getRandomFloorPoint();
+            this.props.push(new Prop(Math.random()<0.5?'barrel':'cover', p.x*TILE_SIZE, p.y*TILE_SIZE));
         }
-
+        for(let i=0; i<5+this.levelIndex; i++) {
+            let p = this.level.getRandomFloorPoint();
+            this.enemies.push(new Enemy('basic', p.x*TILE_SIZE, p.y*TILE_SIZE, 1));
+        }
         this.level.buildFlowField(this.player.x, this.player.y, this.props);
-        
-        const numEnemies = 5 + this.levelIndex * 3, scale = 1 + this.levelIndex * 0.2;
-        for (let i = 0; i < numEnemies; i++) {
-            let p = this.level.getRandomFloorPoint(); while (distance(p.x, p.y, this.player.x, this.player.y) < 300) p = this.level.getRandomFloorPoint();
-            let type = 'basic', r = Math.random();
-            if (this.levelIndex > 1 && r < 0.2) type = 'fast'; else if (this.levelIndex > 2 && r < 0.3) type = 'tank'; else if (this.levelIndex > 3 && r < 0.4) type = 'summoner'; else if (this.levelIndex > 4 && r < 0.5) type = 'healer'; else if (this.levelIndex > 4 && r < 0.6) type = 'shielded';
-            this.enemies.push(new Enemy(type, p.x, p.y, scale));
+    }
+    update(dt) {
+        if(this.state !== 'PLAYING') return;
+        this.player.update(dt, this, this.level);
+        this.camera.x = this.player.x - 512; this.camera.y = this.player.y - 384;
+        this.level.buildFlowField(this.player.x, this.player.y, this.props);
+
+        this.enemies.forEach(e => e.update(dt, this, this.level));
+        this.bullets.forEach((b,i) => { b.update(dt, this.level, this); if(!b.active) { this.pools.bullet.release(b); this.bullets.splice(i,1); } });
+        this.items.forEach((it,i) => { 
+            it.update(dt); 
+            if(distance(this.player.x, this.player.y, it.x, it.y) < 20) {
+                if(it.type === 'coin') this.runCoins += 10; else this.player.hp = Math.min(100, this.player.hp+20);
+                this.items.splice(i,1);
+            } else if(it.life <= 0) this.items.splice(i,1);
+        });
+
+        if(this.enemies.length === 0 && !this.portal) {
+            if(this.levelIndex === 5 && !this.bossSpawned) {
+                this.enemies.push(new Enemy('boss', this.player.x + 200, this.player.y, 1));
+                this.bossSpawned = true;
+            } else {
+                this.portal = { x: this.player.x + randRange(-100, 100), y: this.player.y + randRange(-100, 100) };
+                audioSys.sfxPortal();
+            }
+        }
+        if(this.portal && distance(this.player.x, this.player.y, this.portal.x, this.portal.y) < 30) {
+            if(this.mode === 'STORY' && this.mutationLevels.includes(this.levelIndex) && this.mutationCount < 3) {
+                this.mutationCount++; this.triggerMutation();
+            } else {
+                this.levelIndex++; this.loadLevel();
+            }
+        }
+        if(!this.player.active) {
+            db.users[currentUser].deaths++; saveDB();
+            this.state = 'GAMEOVER'; document.getElementById('goScore').innerText = this.score; this.setScreen('gameOverScreen');
         }
     }
-
     triggerMutation() {
-        this.state = 'MUTATION'; this.setUIState('mutationScreen');
-        const cont = document.getElementById('mutationsContainer'); cont.innerHTML = '';
-        let choices = []; let temp = [...MUTATIONS];
-        for(let i=0; i<3; i++) { let idx = randInt(0, temp.length); choices.push(temp.splice(idx,1)[0]); }
-        choices.forEach(m => {
-            const div = document.createElement('div'); div.className = 'mutation-card'; div.innerHTML = `<h3>${m.name}</h3>`;
-            div.onclick = () => { 
-                m.apply(this.player); 
-                this.setUIState(null); this.state = 'PLAYING';
-                if(this.mode === 'STORY') {
-                    this.levelIndex++; this.loadLevel();
-                } else {
-                    this.waveTimer = 3; 
-                }
-            };
-            cont.appendChild(div);
+        this.state = 'MUTATION'; this.setScreen('mutationScreen');
+        let c = document.getElementById('mutationsContainer'); c.innerHTML = '';
+        MUTATIONS.forEach(m => {
+            let b = document.createElement('button'); b.innerText = m.name;
+            b.onclick = () => { m.apply(this.player); this.levelIndex++; this.loadLevel(); this.state = 'PLAYING'; this.setScreen(null); };
+            c.appendChild(b);
         });
     }
-
-    spawnSurvivalWave() {
-        this.waveTimer = 5; const scale = 1 + this.wave * 0.15;
-        if (this.wave % 10 === 0) {
-            let p = this.level.getRandomFloorPoint(); while (distance(p.x, p.y, this.player.x, this.player.y) < 400) p = this.level.getRandomFloorPoint();
-            this.enemies.push(new Enemy('boss', p.x, p.y, scale)); audioSys.sfxBossSpawn();
-        } else {
-            const numEnemies = 5 + this.wave * 2;
-            for (let i = 0; i < numEnemies; i++) {
-                let p = this.level.getRandomFloorPoint(); while (distance(p.x, p.y, this.player.x, this.player.y) < 400) p = this.level.getRandomFloorPoint();
-                let type = 'basic', r = Math.random();
-                if (this.wave > 2 && r < 0.2) type = 'fast'; else if (this.wave > 4 && r < 0.3) type = 'tank'; else if (this.wave > 6 && r < 0.4) type = 'shielded';
-                this.enemies.push(new Enemy(type, p.x, p.y, scale));
-            }
-        }
-        this.wave++;
-    }
-
-    togglePause() {
-        if(this.state === 'PLAYING') { this.state = 'PAUSED'; this.setUIState('pauseScreen'); }
-        else if (this.state === 'PAUSED') { this.state = 'PLAYING'; this.setUIState(null); }
-    }
-
-    triggerScreenShake(mag) { this.shakeTime = 0.15; this.shakeMagnitude = mag; }
-    spawnParticles(x, y, color, count) { for(let i=0; i<count; i++) { let p = this.pools.particle.get(); p.init(x, y, color); this.particles.push(p); } }
-    showDmgText(x, y, text, color) { let t = this.pools.dmgText.get(); t.init(x, y, text, color); this.dmgTexts.push(t); }
-
-    endRun(isWin) {
-        this.state = isWin ? 'VICTORY' : 'GAMEOVER'; const u = db.users[currentUser]; u.coins += this.runCoins; audioSys.stopBGM();
-        if (isWin) { u.wins++; document.getElementById('vicScore').innerText = this.score; document.getElementById('vicCoins').innerText = this.runCoins; this.setUIState('victoryScreen'); } 
-        else { u.deaths++; document.getElementById('goContext').innerText = `Modo: ${this.mode} | ${this.mode==='STORY' ? 'Nivel: '+(this.levelIndex+1) : 'Oleada: '+(this.wave-1)}`; document.getElementById('goScore').innerText = this.score; document.getElementById('goCoins').innerText = this.runCoins; this.setUIState('gameOverScreen'); }
-        if(this.mode === 'STORY') checkHighscore(currentUser, this.score);
-        saveDB(); audioSys.startBGM('menu');
-    }
-
-    update(dt) {
-        if (this.state !== 'PLAYING') return;
-        this.time += dt * 1000; if (this.shakeTime > 0) this.shakeTime -= dt;
-        
-        this.spatialGrid.clear(); this.enemies.forEach(e => { if(e.active) this.spatialGrid.add(e); });
-
-        this.flowTimer -= dt; if(this.flowTimer <= 0) { this.level.buildFlowField(this.player.x, this.player.y, this.props); this.flowTimer = 0.25; }
-
-        this.player.update(dt, this, this.level);
-        this.camera.x = this.player.x - CANVAS_WIDTH / 2; this.camera.y = this.player.y - CANVAS_HEIGHT / 2;
-
-        if(this.mode === 'SURVIVAL') { 
-            if(this.enemies.length === 0) { 
-                this.waveTimer -= dt; 
-                if(this.waveTimer <= 0) {
-                    if(this.wave > 1 && (this.wave - 1) % 15 === 0 && !this.mutationShownForWave[this.wave]) {
-                        this.mutationShownForWave[this.wave] = true;
-                        this.triggerMutation();
-                    } else {
-                        this.spawnSurvivalWave(); 
-                    }
-                } 
-            } 
-        }
-
-        for (let i = this.bullets.length - 1; i >= 0; i--) {
-            let b = this.bullets[i]; b.update(dt, this.level, this);
-            if (b.active && !b.explosive) {
-                if (b.isPlayer) {
-                    let nearby = this.spatialGrid.query(b.x, b.y, b.radius + 30);
-                    for (let e of nearby) { if (e.active && distance(b.x, b.y, e.x, e.y) < b.radius + e.radius) { e.takeDamage(b.damage, this); b.active = false; break; } }
-                } else { if (distance(b.x, b.y, this.player.x, this.player.y) < b.radius + this.player.radius) { this.player.takeDamage(b.damage, this); b.active = false; } }
-            } else if (b.active && b.explosive) {
-                if (b.isPlayer) { let nearby = this.spatialGrid.query(b.x, b.y, b.radius+30); for (let e of nearby) { if (e.active && distance(b.x, b.y, e.x, e.y) < b.radius + e.radius) { b.active = false; this.explosions.push(new Explosion(b.x, b.y, b.expRadius, b.damage, true, b.color)); break; } } } 
-                else { if (distance(b.x, b.y, this.player.x, this.player.y) < b.radius + this.player.radius) { b.active = false; this.explosions.push(new Explosion(b.x, b.y, b.expRadius, b.damage, false, b.color)); } }
-            }
-            if (!b.active) { this.pools.bullet.release(b); this.bullets.splice(i, 1); }
-        }
-
-        for (let i = this.explosions.length - 1; i >= 0; i--) { this.explosions[i].update(dt, this); if (!this.explosions[i].active) this.explosions.splice(i, 1); }
-        for (let i = this.props.length - 1; i >= 0; i--) { this.props[i].update(dt, this); if(!this.props[i].active) this.props.splice(i,1); }
-
-        let activeEnemies = 0;
-        for (let i = this.enemies.length - 1; i >= 0; i--) {
-            let e = this.enemies[i]; e.update(dt, this, this.level);
-            if (distance(e.x, e.y, this.player.x, this.player.y) < e.radius + this.player.radius) this.player.takeDamage(e.damage, this);
-            if (!e.active) this.enemies.splice(i, 1); else activeEnemies++;
-        }
-
-        if (this.mode === 'STORY' && activeEnemies === 0) {
-            if (this.levelIndex === this.targetLevels - 1 && !this.bossSpawned) {
-                this.bossSpawned = true; let p = this.level.getRandomFloorPoint(); while(distance(p.x, p.y, this.player.x, this.player.y) < 300) p = this.level.getRandomFloorPoint();
-                this.enemies.push(new Enemy('boss', p.x, p.y, 1 + this.levelIndex * 0.2)); audioSys.sfxBossSpawn();
-            } else if (!this.portal && (this.levelIndex < this.targetLevels - 1 || this.bossSpawned)) {
-                let px = this.player.x, py = this.player.y;
-                let valid = false, prx, pry;
-                for(let k=0; k<30; k++){
-                    let ang = Math.random()*Math.PI*2; let d = randRange(150, 350);
-                    prx = px + Math.cos(ang)*d; pry = py + Math.sin(ang)*d;
-                    if(!this.level.checkCollision(prx, pry, 20)) { valid = true; break; }
-                }
-                if(!valid) { let fall = this.level.getSpawnPoint(); prx = fall.x; pry = fall.y; }
-                this.portal = new Portal(prx, pry); audioSys.sfxPortal();
-            }
-        }
-
-        if (this.portal && distance(this.player.x, this.player.y, this.portal.x, this.portal.y) < this.player.radius + this.portal.radius) {
-            if (this.levelIndex === this.targetLevels - 1) { this.endRun(true); return; }
-            if (this.mutationLevels.includes(this.levelIndex)) this.triggerMutation();
-            else { this.levelIndex++; this.loadLevel(); }
-            return;
-        }
-
-        for (let i = this.items.length - 1; i >= 0; i--) {
-            let p = this.items[i];
-            p.update(dt);
-            if (distance(p.x, p.y, this.player.x, this.player.y) < p.radius + this.player.radius) {
-                if(p.type === 'coin') { this.runCoins += 10; audioSys.sfxCoin(); }
-                if(p.type === 'heal') this.player.hp = Math.min(this.player.maxHp, this.player.hp + 20);
-                this.items.splice(i, 1);
-            } else if(p.lifeTime <= 0) {
-                this.items.splice(i, 1);
-            }
-        }
-
-        for (let i = this.particles.length - 1; i >= 0; i--) { this.particles[i].update(dt); if (!this.particles[i].active) { this.pools.particle.release(this.particles[i]); this.particles.splice(i, 1); } }
-        for (let i = this.customParticles.length - 1; i >= 0; i--) { this.customParticles[i].life -= dt; if(this.customParticles[i].life <= 0) this.customParticles.splice(i, 1); }
-        for (let i = this.dmgTexts.length - 1; i >= 0; i--) { this.dmgTexts[i].update(dt); if (!this.dmgTexts[i].active) { this.pools.dmgText.release(this.dmgTexts[i]); this.dmgTexts.splice(i, 1); } }
-        
-        for(let k in this.input.keys) this.prevKeys[k] = this.input.keys[k];
-
-        if (!this.player.active) this.endRun(false);
-    }
-
     draw() {
-        this.ctx.fillStyle = '#050508'; this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        if (this.state === 'LOGIN' || this.state === 'MENU' || this.state === 'STORE') return;
-
-        this.ctx.save();
-        if (this.shakeTime > 0) this.ctx.translate((Math.random()-0.5)*this.shakeMagnitude, (Math.random()-0.5)*this.shakeMagnitude);
-        this.ctx.translate(-this.camera.x, -this.camera.y);
-
-        if (this.level) this.level.draw(this.ctx, this.camera);
-        if (this.portal) this.portal.draw(this.ctx, 1/60);
+        this.ctx.clearRect(0,0,1024,768);
+        if(this.state === 'LOGIN' || this.state === 'MENU') return;
+        this.ctx.save(); this.ctx.translate(-this.camera.x, -this.camera.y);
+        this.level.draw(this.ctx, this.camera);
         this.props.forEach(p => p.draw(this.ctx));
-        this.items.forEach(p => p.draw(this.ctx, this.time));
+        this.items.forEach(i => i.draw(this.ctx, Date.now()));
         this.enemies.forEach(e => e.draw(this.ctx));
         this.bullets.forEach(b => b.draw(this.ctx));
-        this.explosions.forEach(e => e.draw(this.ctx));
-        this.particles.forEach(p => p.draw(this.ctx));
-        
-        this.customParticles.forEach(p => {
-            if(p.type === 'laser') {
-                this.ctx.strokeStyle = '#ff0000'; this.ctx.lineWidth = 15 * (p.life/0.5); this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y);
-                this.ctx.lineTo(p.x + Math.cos(p.angle)*1000, p.y + Math.sin(p.angle)*1000); this.ctx.stroke();
-            }
-        });
-
-        if (this.player.active) this.player.draw(this.ctx);
-        this.dmgTexts.forEach(t => t.draw(this.ctx));
-
+        if(this.portal) { this.ctx.fillStyle = '#f0f'; this.ctx.beginPath(); this.ctx.arc(this.portal.x, this.portal.y, 20, 0, 7); this.ctx.fill(); }
+        this.player.draw(this.ctx);
         this.ctx.restore();
-
-        if (this.state === 'PLAYING' || this.state === 'PAUSED') { this.drawHUD(); this.drawMinimap(); }
-        if (this.state === 'PAUSED') { this.ctx.fillStyle = 'rgba(0,0,0,0.5)'; this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); }
+        this.drawHUD();
     }
-
     drawHUD() {
-        const ctx = this.ctx; ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'; ctx.fillRect(10, 10, 260, 120);
-        
-        ctx.fillStyle = '#fff'; ctx.font = '14px Courier New'; ctx.fillText(`HP: ${Math.ceil(this.player.hp)}/${this.player.maxHp}`, 20, 30);
-        ctx.fillStyle = '#550000'; ctx.fillRect(20, 40, 200, 10); ctx.fillStyle = '#00ffcc'; ctx.fillRect(20, 40, 200 * (Math.max(0, this.player.hp) / this.player.maxHp), 10);
-
-        ctx.fillStyle = '#fff'; ctx.fillText(`DASH`, 20, 70); ctx.fillStyle = '#333'; ctx.fillRect(60, 60, 50, 10);
-        if(this.player.dashCooldownTimer <= 0) { ctx.fillStyle = '#0f0'; ctx.fillRect(60, 60, 50, 10); } 
-        else { ctx.fillStyle = '#f00'; ctx.fillRect(60, 60, 50 * (1 - this.player.dashCooldownTimer/this.player.dashCooldown), 10); }
-        
-        ctx.fillStyle = '#fff'; ctx.fillText(`AMMO: ${this.player.weapon.ammo}/${this.player.weapon.config.magSize}`, 20, 100);
-        ctx.fillStyle = '#333'; ctx.fillRect(20, 110, 200, 10);
-        if(this.player.weapon.reloading) {
-            let prog = this.player.weapon.reloadTimer / this.player.weapon.config.reloadTime;
-            ctx.fillStyle = '#ffaa00'; ctx.fillRect(20 + 200*0.5, 110, 200*0.15, 10); 
-            ctx.fillStyle = '#fff'; ctx.fillRect(20 + 200*prog, 105, 4, 20); 
-        } else { ctx.fillStyle = '#00ffcc'; ctx.fillRect(20, 110, 200 * (this.player.weapon.ammo / this.player.weapon.config.magSize), 10); }
-
-        ctx.fillStyle = 'var(--gold-color)'; ctx.fillText(`Créditos: ${this.runCoins}`, 130, 70);
-        ctx.textAlign = 'right'; ctx.font = '20px Courier New';
-        if(this.mode === 'STORY') { ctx.fillStyle = '#00ffcc'; ctx.fillText(`Nivel: ${this.levelIndex + 1}/${this.targetLevels}`, CANVAS_WIDTH - 20, 40); ctx.fillStyle = '#fff'; ctx.fillText(`Puntos: ${this.score}`, CANVAS_WIDTH - 20, 70); } 
-        else { ctx.fillStyle = '#ff0055'; ctx.fillText(`Oleada: ${this.wave - 1}`, CANVAS_WIDTH - 20, 40); if(this.enemies.length === 0 && this.waveTimer > 0) { ctx.fillStyle = '#fff'; ctx.fillText(`Siguiente en: ${Math.ceil(this.waveTimer)}s`, CANVAS_WIDTH - 20, 70); } }
-        ctx.textAlign = 'left';
+        this.ctx.fillStyle = '#fff'; this.ctx.fillText(`HP: ${Math.ceil(this.player.hp)}  COINS: ${this.runCoins}`, 20, 30);
     }
-
-    drawMinimap() {
-        if(!this.level) return;
-        const ctx = this.ctx, size = 150, scale = size / (this.level.cols * this.level.tileSize), mapX = CANVAS_WIDTH - size - 20, mapY = CANVAS_HEIGHT - size - 20;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; ctx.fillRect(mapX, mapY, size, size); ctx.strokeStyle = '#00ffcc'; ctx.strokeRect(mapX, mapY, size, size);
-
-        for (let y = 0; y < this.level.rows; y++) {
-            for (let x = 0; x < this.level.cols; x++) {
-                if (this.level.grid[y][x] === 1) { ctx.fillStyle = 'rgba(50, 50, 70, 0.8)'; ctx.fillRect(mapX + x * this.level.tileSize * scale, mapY + y * this.level.tileSize * scale, this.level.tileSize * scale, this.level.tileSize * scale); }
-            }
-        }
-        if(this.portal) { ctx.fillStyle = '#ff00ff'; ctx.beginPath(); ctx.arc(mapX + this.portal.x * scale, mapY + this.portal.y * scale, 3, 0, Math.PI*2); ctx.fill(); }
-        this.items.forEach(item => { ctx.fillStyle = item.type === 'coin' ? '#ffd700' : '#0f0'; ctx.beginPath(); ctx.arc(mapX + item.x * scale, mapY + item.y * scale, 1.5, 0, Math.PI*2); ctx.fill(); });
-        this.enemies.forEach(e => { ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.arc(mapX + e.x * scale, mapY + e.y * scale, 2, 0, Math.PI*2); ctx.fill(); });
-        ctx.fillStyle = '#00ffcc'; ctx.beginPath(); ctx.arc(mapX + this.player.x * scale, mapY + this.player.y * scale, 3, 0, Math.PI*2); ctx.fill();
-    }
-
-    loop(timestamp) {
-        let dt = (timestamp - this.lastTime) / 1000; if (dt > 0.1) dt = 0.1; this.lastTime = timestamp;
-        this.update(dt); this.draw(); requestAnimationFrame((t) => this.loop(t));
+    loop(t) {
+        let dt = Math.min(0.1, (t - (this.lt || t))/1000); this.lt = t;
+        this.update(dt); this.draw(); requestAnimationFrame(t => this.loop(t));
     }
 }
-
-window.onload = () => { const game = new Game(); requestAnimationFrame((t) => { game.lastTime = t; game.loop(t); }); };
+window.onload = () => { const g = new Game(); g.loop(0); };
 </script>
 </body>
 </html>
