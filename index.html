@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>NEON ARMOR-by MARUYANX</title>
     <style>
         :root {
@@ -16,22 +16,22 @@
             display: flex; justify-content: center; align-items: center; user-select: none;
         }
         #appWrapper {
-    display: flex;
-    gap: 20px;
-}
+            display: flex;
+            gap: 20px;
+        }
 
-@media (max-width: 900px) {
-    #appWrapper {
-        flex-direction: column;
-        align-items: center;
-    }
+        @media (max-width: 900px) {
+            #appWrapper {
+                flex-direction: column;
+                align-items: center;
+            }
 
-    #leaderboardPanel {
-        width: 90%;
-        height: auto;
-        max-height: 300px;
-    }
-}
+            #leaderboardPanel {
+                width: 90%;
+                height: auto;
+                max-height: 300px;
+            }
+        }
         canvas { display: block; width: 100%; height: 100%; object-fit: contain;}
         
         #leaderboardPanel { width: 250px; height: 768px; background: #111; border: 2px solid var(--accent-color); padding: 20px; box-sizing: border-box; overflow-y: auto; border-radius: 8px; }
@@ -68,76 +68,80 @@
         .stats-bar span { color: var(--accent-color); }
 
         #mobileControls {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    display: none;
-}
-
-#joystickBase {
-    position: absolute;
-    left: 5%;
-    bottom: 5%;
-    width: 25vw;
-    height: 25vw;
-    max-width: 140px;
-    max-height: 140px;
-    background: rgba(0,255,204,0.15);
-    border: 2px solid #00ffcc;
-    border-radius: 50%;
-    pointer-events: auto;
-}
-
-#joystickStick {
-    position: absolute;
-    width: 40%;
-    height: 40%;
-    background: #00ffcc;
-    border-radius: 50%;
-    left: 30%;
-    top: 30%;
-}
-
-#mobileShoot {
-    position: absolute;
-    right: 8%;
-    bottom: 10%;
-    width: 20vw;
-    height: 20vw;
-    max-width: 110px;
-    max-height: 110px;
-    font-size: 28px;
-    border-radius: 50%;
-    background: #ff0055;
-    color: white;
-    pointer-events: auto;
-}
-
-#mobilePause {
-    position: absolute;
-    right: 5%;
-    top: 5%;
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
-    background: #444;
-    color: white;
-    pointer-events: auto;
-}
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: none;
+            z-index: 5;
+        }
+        #leftTouchZone {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            pointer-events: auto;
+        }
+        #joystickBase {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(0,255,204,0.15);
+            border: 2px solid #00ffcc;
+            border-radius: 50%;
+            pointer-events: none;
+            display: none;
+            transform: translate(-50%, -50%);
+        }
+        #joystickStick {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #00ffcc;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #mobileShoot {
+            position: absolute;
+            right: 8%;
+            bottom: 10%;
+            width: 20vw;
+            height: 20vw;
+            max-width: 110px;
+            max-height: 110px;
+            font-size: 28px;
+            border-radius: 50%;
+            background: #ff0055;
+            color: white;
+            pointer-events: auto;
+        }
+        #mobilePause {
+            position: absolute;
+            right: 5%;
+            top: 5%;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: #444;
+            color: white;
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
 <div id="appWrapper">
-    <div id="gameContainer">
+    <div id="gameContainer" style="position: relative; width: 1024px; max-width: 100%;">
         <canvas id="gameCanvas" width="1024" height="768"></canvas>
         <div id="mobileControls">
-    <div id="joystickBase">
-        <div id="joystickStick"></div>
-    </div>
-
-    <button id="mobileShoot">●</button>
-    <button id="mobilePause">II</button>
-</div>
+            <div id="leftTouchZone"></div>
+            <div id="joystickBase">
+                <div id="joystickStick"></div>
+            </div>
+            <button id="mobileShoot">●</button>
+            <button id="mobilePause">II</button>
+        </div>
         <div id="uiLayer">
             <div id="loginScreen" class="screen active">
                 <h1>NEON ARMOR</h1><p>Identificación de Usuario</p>
@@ -285,6 +289,8 @@ class AudioSystem {
     sfxReload() { this.playTone(800, 'triangle', 0.1, 0.05, 1200); }
     sfxReloadFail() { this.playTone(200, 'sawtooth', 0.3, 0.1, 150); }
     sfxReloadPerfect() { this.playTone(1200, 'sine', 0.2, 0.1, 1800); }
+    sfxLaserWarn() { this.playTone(300, 'sine', 0.5, 0.1, 600); }
+    sfxLaserFire() { this.playTone(1000, 'sawtooth', 0.4, 0.2, 100); }
     
     startBGM(type) {
         if(!soundEnabled || !this.ctx) return;
@@ -657,15 +663,29 @@ class Player {
         if (!level.checkCollision(nx, this.y, this.radius) && !this.checkPropCollision(nx, this.y, game.props)) this.x = nx;
         if (!level.checkCollision(this.x, ny, this.radius) && !this.checkPropCollision(this.x, ny, game.props)) this.y = ny;
 
-        const wmx = game.input.mouse.x + game.camera.x, wmy = game.input.mouse.y + game.camera.y;
-        this.angle = Math.atan2(wmy - this.y, wmx - this.x);
+        let targetX = game.input.mouse.x + game.camera.x;
+        let targetY = game.input.mouse.y + game.camera.y;
+
+        if (game.isMobile) {
+            let closest = null, minDist = 600;
+            for (let e of game.enemies) {
+                if (e.active) {
+                    let d = distance(this.x, this.y, e.x, e.y);
+                    if (d < minDist) { minDist = d; closest = e; }
+                }
+            }
+            if (closest) { targetX = closest.x; targetY = closest.y; }
+            else if (dx !== 0 || dy !== 0) { targetX = this.x + dx * 100; targetY = this.y + dy * 100; }
+        }
+
+        this.angle = Math.atan2(targetY - this.y, targetX - this.x);
 
         this.weapon.update(dt);
         if (game.input.keys['KeyR'] && !game.prevKeys['KeyR']) this.weapon.attemptActiveReload(game);
         else if (game.input.keys['KeyR'] && !this.weapon.reloading && this.weapon.ammo < this.weapon.config.magSize) this.weapon.startReload();
 
         if (game.input.mouse.down || (this.weapon.config.auto && game.input.mouse.down)) {
-            this.weapon.fire(this.x, this.y, wmx, wmy, game, game.time);
+            this.weapon.fire(this.x, this.y, targetX, targetY, game, game.time);
             if(!this.weapon.config.auto) game.input.mouse.down = false;
         }
     }
@@ -835,12 +855,12 @@ class Enemy {
         if (this.hp <= 0) {
             this.active = false; audioSys.sfxEnemyDeath();
             if (game.mode === 'STORY' && fromPlayer && !this.summoned) {
-    if (this.type === 'boss') {
-        game.score += 500;
-    } else {
-        game.score += randInt(1, 6); // 1 a 5 puntos reales
-    }
-}
+                if (this.type === 'boss') {
+                    game.score += 500;
+                } else {
+                    game.score += randInt(1, 6);
+                }
+            }
             game.spawnParticles(this.x, this.y, this.color, this.radius);
             let dropRate = game.mode === 'SURVIVAL' ? 0.05 : 0.15;
             if (this.type === 'boss') for(let i=0; i<15; i++) game.items.push(new Item('coin', this.x + randRange(-30,30), this.y + randRange(-30,30)));
@@ -902,8 +922,8 @@ class Game {
         this.isMobile = 'ontouchstart' in window;
         this.mobileControls = document.getElementById('mobileControls');
         if(this.isMobile){
-        this.mobileControls.style.display = 'none';
-}
+            this.mobileControls.style.display = 'none';
+        }
         this.canvas = document.getElementById('gameCanvas'); this.ctx = this.canvas.getContext('2d');
         this.input = { keys: {}, mouse: { x: 0, y: 0, down: false } }; this.prevKeys = {};
         window.gameInstance = this;
@@ -915,69 +935,79 @@ class Game {
         this.canvas.addEventListener('mouseup', () => this.input.mouse.down = false);
 
         if(this.isMobile){
+            const base = document.getElementById('joystickBase');
+            const stick = document.getElementById('joystickStick');
+            const shootBtn = document.getElementById('mobileShoot');
+            const pauseBtn = document.getElementById('mobilePause');
+            const leftZone = document.getElementById('leftTouchZone');
 
-    const base = document.getElementById('joystickBase');
-    const stick = document.getElementById('joystickStick');
-    const shootBtn = document.getElementById('mobileShoot');
-    const pauseBtn = document.getElementById('mobilePause');
+            let joystickActive = false;
+            let startX = 0;
+            let startY = 0;
+            let joyTouchId = null;
 
-    let joystickActive = false;
-    let startX = 0;
-    let startY = 0;
+            leftZone.addEventListener('touchstart', e => {
+                e.preventDefault();
+                for(let i=0; i<e.changedTouches.length; i++) {
+                    let t = e.changedTouches[i];
+                    if (!joystickActive) {
+                        joystickActive = true;
+                        joyTouchId = t.identifier;
+                        startX = t.clientX;
+                        startY = t.clientY;
+                        base.style.display = 'block';
+                        base.style.left = startX + 'px';
+                        base.style.top = startY + 'px';
+                        stick.style.transform = `translate(-50%, -50%)`;
+                    }
+                }
+            }, {passive: false});
 
-    base.addEventListener('touchstart', e=>{
-        joystickActive = true;
-        const t = e.touches[0];
-        startX = t.clientX;
-        startY = t.clientY;
-    });
+            leftZone.addEventListener('touchmove', e => {
+                e.preventDefault();
+                if(!joystickActive) return;
+                for(let i=0; i<e.changedTouches.length; i++) {
+                    let t = e.changedTouches[i];
+                    if(t.identifier === joyTouchId) {
+                        const dx = t.clientX - startX;
+                        const dy = t.clientY - startY;
 
-    base.addEventListener('touchmove', e=>{
-        if(!joystickActive) return;
-        const t = e.touches[0];
-        const dx = t.clientX - startX;
-        const dy = t.clientY - startY;
+                        const maxDist = 40;
+                        const dist = Math.min(maxDist, Math.hypot(dx, dy));
+                        const angle = Math.atan2(dy, dx);
 
-        const maxDist = 40;
-        const dist = Math.min(maxDist, Math.hypot(dx, dy));
-        const angle = Math.atan2(dy, dx);
+                        const moveX = Math.cos(angle) * dist;
+                        const moveY = Math.sin(angle) * dist;
 
-        const moveX = Math.cos(angle) * dist;
-        const moveY = Math.sin(angle) * dist;
+                        stick.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
 
-        const baseRect = base.getBoundingClientRect();
-        const center = baseRect.width / 2;
-        stick.style.left = center - (baseRect.width * 0.2) + moveX + 'px';
-        stick.style.top = center - (baseRect.height * 0.2) + moveY + 'px';
+                        this.input.keys['KeyW'] = moveY < -10;
+                        this.input.keys['KeyS'] = moveY > 10;
+                        this.input.keys['KeyA'] = moveX < -10;
+                        this.input.keys['KeyD'] = moveX > 10;
+                    }
+                }
+            }, {passive: false});
 
-        this.input.keys['KeyW'] = moveY < -10;
-        this.input.keys['KeyS'] = moveY > 10;
-        this.input.keys['KeyA'] = moveX < -10;
-        this.input.keys['KeyD'] = moveX > 10;
-    });
+            leftZone.addEventListener('touchend', e => {
+                e.preventDefault();
+                for(let i=0; i<e.changedTouches.length; i++) {
+                    if(e.changedTouches[i].identifier === joyTouchId) {
+                        joystickActive = false;
+                        joyTouchId = null;
+                        base.style.display = 'none';
+                        this.input.keys['KeyW'] = false;
+                        this.input.keys['KeyS'] = false;
+                        this.input.keys['KeyA'] = false;
+                        this.input.keys['KeyD'] = false;
+                    }
+                }
+            }, {passive: false});
 
-    base.addEventListener('touchend', ()=>{
-        joystickActive = false;
-        stick.style.left = '30%';
-        stick.style.top = '30%';
-        this.input.keys['KeyW'] = false;
-        this.input.keys['KeyS'] = false;
-        this.input.keys['KeyA'] = false;
-        this.input.keys['KeyD'] = false;
-    });
-
-    shootBtn.addEventListener('touchstart', ()=>{
-        this.input.mouse.down = true;
-    });
-
-    shootBtn.addEventListener('touchend', ()=>{
-        this.input.mouse.down = false;
-    });
-
-    pauseBtn.addEventListener('touchstart', ()=>{
-        this.togglePause();
-    });
-}
+            shootBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); this.input.mouse.down = true; }, {passive: false});
+            shootBtn.addEventListener('touchend', (e)=>{ e.preventDefault(); this.input.mouse.down = false; }, {passive: false});
+            pauseBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); this.togglePause(); }, {passive: false});
+        }
 
         this.pools = {
             bullet: new Pool(() => new Bullet()),
@@ -988,6 +1018,7 @@ class Game {
 
         this.state = 'LOGIN'; this.mode = 'STORY'; this.lastTime = 0; this.time = 0;
         this.camera = { x: 0, y: 0 }; this.shakeTime = 0; this.shakeMagnitude = 0; this.flowTimer = 0;
+        this.lastFlowX = null; this.lastFlowY = null;
         
         this.resetGameData(); this.setupDOM(); loadDB();
     }
@@ -1060,8 +1091,8 @@ class Game {
         if(this.mode === 'STORY') this.loadLevel();
         else { this.level = new Level(0, true); this.player.x = this.level.getSpawnPoint().x; this.player.y = this.level.getSpawnPoint().y; }
         if(this.isMobile){
-        this.mobileControls.style.display = 'block';
-}
+            this.mobileControls.style.display = 'block';
+        }
     }
 
     loadLevel() {
@@ -1078,6 +1109,7 @@ class Game {
         }
 
         this.level.buildFlowField(this.player.x, this.player.y, this.props);
+        this.lastFlowX = this.player.x; this.lastFlowY = this.player.y;
         
         const numEnemies = 5 + this.levelIndex * 3, scale = 1 + this.levelIndex * 0.2;
         for (let i = 0; i < numEnemies; i++) {
@@ -1140,8 +1172,8 @@ class Game {
         else { u.deaths++; document.getElementById('goContext').innerText = `Modo: ${this.mode} | ${this.mode==='STORY' ? 'Nivel: '+(this.levelIndex+1) : 'Oleada: '+(this.wave-1)}`; document.getElementById('goScore').innerText = this.score; document.getElementById('goCoins').innerText = this.runCoins; this.setUIState('gameOverScreen'); }
         if(this.mode === 'STORY') checkHighscore(currentUser, this.score);
         if(this.isMobile){
-        this.mobileControls.style.display = 'none';
-}
+            this.mobileControls.style.display = 'none';
+        }
         saveDB(); audioSys.startBGM('menu');
     }
 
@@ -1151,7 +1183,15 @@ class Game {
         
         this.spatialGrid.clear(); this.enemies.forEach(e => { if(e.active) this.spatialGrid.add(e); });
 
-        this.flowTimer -= dt; if(this.flowTimer <= 0) { this.level.buildFlowField(this.player.x, this.player.y, this.props); this.flowTimer = 0.25; }
+        this.flowTimer -= dt; 
+        if(this.flowTimer <= 0) { 
+            let distMoved = distance(this.player.x, this.player.y, this.lastFlowX || 0, this.lastFlowY || 0);
+            if (distMoved > 40 || !this.lastFlowX) {
+                this.level.buildFlowField(this.player.x, this.player.y, this.props); 
+                this.lastFlowX = this.player.x; this.lastFlowY = this.player.y;
+            }
+            this.flowTimer = 0.25; 
+        }
 
         this.player.update(dt, this, this.level);
         this.camera.x = this.player.x - CANVAS_WIDTH / 2; this.camera.y = this.player.y - CANVAS_HEIGHT / 2;
