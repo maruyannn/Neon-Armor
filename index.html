@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON ARMOR - ADAPTATIVE EDITION</title>
+    <title>NEON ARMOR - COMPLETE EDITION</title>
     <style>
         :root {
             --bg-color: #0d0d12; --accent-color: #00ffcc; --danger-color: #ff0055;
@@ -42,10 +42,11 @@
 
         #uiLayer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 20; }
         
-        body.pc-mode .screen { background: var(--ui-bg); padding: 30px; border: 2px solid var(--accent-color); border-radius: 8px; text-align: center; pointer-events: auto; box-shadow: 0 0 15px var(--accent-color); display: none; max-width: 800px; max-height: 90%; overflow-y: auto; }
-        body.mobile-mode .screen { background: var(--ui-bg); padding: 15px; border: 2px solid var(--accent-color); border-radius: 0; text-align: center; pointer-events: auto; display: none; width: 100%; height: 100%; box-sizing: border-box; overflow-y: auto; }
-        
-        .screen.active { display: block; }
+        .screen { display: none; pointer-events: auto; }
+        .screen.active { display: block !important; }
+
+        body.pc-mode .screen { background: var(--ui-bg); padding: 30px; border: 2px solid var(--accent-color); border-radius: 8px; text-align: center; box-shadow: 0 0 15px var(--accent-color); max-width: 800px; max-height: 90%; overflow-y: auto; }
+        body.mobile-mode .screen { background: var(--ui-bg); padding: 15px; border: 2px solid var(--accent-color); border-radius: 0; text-align: center; width: 100%; height: 100%; box-sizing: border-box; overflow-y: auto; }
         
         h1 { margin-top: 0; color: var(--accent-color); text-shadow: 0 0 10px var(--accent-color); }
         h2 { color: var(--danger-color); margin-top: 0; }
@@ -128,14 +129,17 @@
         #btnStoreBuy { bottom: 25%; right: 10%; background: #aa0033; }
         #btnStoreBack { bottom: 15%; right: 35%; background: #444; }
 
-        #leaderboardPanel { background: #111; border: 2px solid var(--accent-color); padding: 20px; box-sizing: border-box; overflow-y: auto; text-align: center; }
-        #leaderboardPanel h2 { color: var(--accent-color); font-size: 1.2em; margin-top: 0; }
+        #leaderboardPanel, #leaderboardPanelMobile { background: #111; border: 2px solid var(--accent-color); padding: 20px; box-sizing: border-box; overflow-y: auto; text-align: center; }
+        h2 { color: var(--accent-color); font-size: 1.2em; margin-top: 0; }
         .lb-entry { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.9em; }
         .lb-entry span:nth-child(2) { color: var(--gold-color); }
 
         body.pc-mode #leaderboardPanel { width: 250px; height: 768px; border-radius: 8px; }
-        body.mobile-mode #leaderboardPanel { flex: 0 0 80px; border-radius: 0; border-width: 3px 0 0 0; padding: 5px 15px; }
-        body.mobile-mode #leaderboardPanel h2 { font-size: 1em; margin: 2px 0; }
+        body.pc-mode #leaderboardPanelMobile { display: none; }
+        
+        body.mobile-mode #leaderboardPanel { display: none; }
+        body.mobile-mode #leaderboardPanelMobile { flex: 0 0 80px; border-radius: 0; border-width: 3px 0 0 0; padding: 5px 15px; }
+        body.mobile-mode #leaderboardPanelMobile h2 { font-size: 1em; margin: 2px 0; }
         body.mobile-mode .lb-entry { padding: 2px 0; font-size: 0.8em; }
     </style>
 </head>
@@ -1463,7 +1467,7 @@ class Game {
 
         if (isMobileMode) {
             mapX = 20;
-            mapY = 150;
+            mapY = 160;
         }
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; ctx.fillRect(mapX, mapY, size, size); ctx.strokeStyle = '#00ffcc'; ctx.strokeRect(mapX, mapY, size, size);
