@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON ARMOR</title>
+    <title>NEON ARMOR - COMPLETE EDITION</title>
     <style>
         :root {
             --bg-color: #0d0d12; --accent-color: #00ffcc; --danger-color: #ff0055;
@@ -341,21 +341,31 @@ class AudioSystem {
     startBGM(type) {
         if(!soundEnabled || !this.ctx) return;
         this.stopBGM();
-        if(type !== 'menu') return; 
+        if(type !== 'menu' && type !== 'boss') return; 
 
         this.bgmOsc = this.ctx.createOscillator(); this.bgmGain = this.ctx.createGain();
-        this.bgmOsc.type = 'square'; this.bgmGain.gain.value = 0.02;
+        this.bgmGain.gain.value = 0.02;
         this.bgmOsc.connect(this.bgmGain); this.bgmGain.connect(this.ctx.destination);
+        
+        let seq = [];
+        let speed = 200;
+
+        if(type === 'menu') {
+            this.bgmOsc.type = 'square';
+            seq = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+            speed = 200;
+        } else if (type === 'boss') {
+            this.bgmOsc.type = 'sawtooth';
+            seq = [130.81, 146.83, 130.81, 196.00, 130.81, 146.83, 130.81, 233.08];
+            speed = 120;
+        }
+
         this.bgmOsc.start();
-        
-        const seq = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; 
-        const speed = 200;
-        
         this.bgmInterval = setInterval(() => {
             if(this.ctx.state === 'suspended') return;
             this.bgmOsc.frequency.setValueAtTime(seq[this.step % seq.length], this.ctx.currentTime);
-            this.bgmGain.gain.setValueAtTime(0.03, this.ctx.currentTime);
-            this.bgmGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+            this.bgmGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+            this.bgmGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + (speed/2000));
             this.step++;
         }, speed);
     }
@@ -452,10 +462,9 @@ class Level {
         for (let y = sr; y < er; y++) {
             for (let x = sc; x < ec; x++) {
                 if (this.grid[y][x] === 1) {
-                    ctx.fillStyle = '#0a0a10'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize, this.tileSize);
-                    ctx.strokeStyle = '#223'; ctx.strokeRect(x*this.tileSize, y*this.tileSize, this.tileSize, this.tileSize);
+                    ctx.fillStyle = '#0a0a10'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize+1, this.tileSize+1);
                 } else {
-                    ctx.fillStyle = '#111118'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize, this.tileSize);
+                    ctx.fillStyle = '#111118'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize+1, this.tileSize+1);
                 }
             }
         }
@@ -514,7 +523,11 @@ class Prop {
             ctx.fillStyle = '#aa2222'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#ff5500'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius*0.6, 0, Math.PI*2); ctx.fill();
         } else if(this.type === 'cover') {
-            ctx.fillStyle = '#444'; ctx.fillRect(this.x-15, this.y-15, 30, 30);
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(this.x-15, this.y-15, 30, 30);
+            ctx.fillStyle = '#888';
+            ctx.fillRect(this.x-15, this.y-10, 30, 4);
+            ctx.fillRect(this.x-15, this.y-2, 30, 4);
+            ctx.fillRect(this.x-15, this.y+6, 30, 4);
             ctx.fillStyle = `rgba(0,0,0, ${1 - this.hp/this.maxHp})`; ctx.fillRect(this.x-15, this.y-15, 30, 30);
         } else if(this.type === 'trap') {
             ctx.fillStyle = '#222'; ctx.fillRect(this.x-15, this.y-15, 30, 30);
@@ -580,6 +593,7 @@ class Weapon {
     }
     draw(ctx, px, py, angle) {
         ctx.save(); ctx.translate(px, py); ctx.rotate(angle);
+        ctx.translate(0, 10);
         ctx.fillStyle = this.config.color;
         if(this.config.type === 'pistol') ctx.fillRect(10, -3, 12, 6);
         else if(this.config.type === 'shotgun') { ctx.fillRect(10, -5, 18, 4); ctx.fillRect(10, 1, 18, 4); }
@@ -757,7 +771,7 @@ class Enemy {
         this.color = conf.color; this.eType = conf.type;
         this.flashTimer = 0; this.actionTimer = 0;
 
-        this.aggro = (type === 'boss');
+        this.aggro = (type === 'boss' || summoned);
         this.wanderAngle = Math.random() * Math.PI * 2;
         this.wanderTimer = 0;
         
@@ -788,7 +802,7 @@ class Enemy {
         if (this.flashTimer > 0) this.flashTimer -= dt;
         const player = game.player; const dist = distance(this.x, this.y, player.x, player.y);
         
-        if (!this.aggro && this.type !== 'boss') {
+        if (!this.aggro) {
             if (dist < 600 && this.checkLOS(player, level)) this.aggro = true;
         }
 
@@ -830,7 +844,6 @@ class Enemy {
                     let lx = this.x, ly = this.y, hitPlayer = false;
                     for(let i=0; i<1000; i+=10) {
                         lx += Math.cos(this.bossAimAngle)*10; ly += Math.sin(this.bossAimAngle)*10;
-                        if(level.checkCollision(lx, ly, 1)) break;
                         if(distance(lx, ly, player.x, player.y) < player.radius + 15) hitPlayer = true;
                     }
                     if(hitPlayer) player.takeDamage(this.damage * 2, game);
@@ -1238,15 +1251,29 @@ class Game {
         this.level.buildFlowField(this.player.x, this.player.y);
         this.lastFlowX = this.player.x; this.lastFlowY = this.player.y;
         
-        const numEnemies = 5 + this.levelIndex * 3, scale = 1 + this.levelIndex * 0.2;
-        for (let i = 0; i < numEnemies; i++) {
+        const numEnemyGroups = 4 + this.levelIndex * 2;
+        const scale = 1 + this.levelIndex * 0.2;
+        for (let g = 0; g < numEnemyGroups; g++) {
             let p;
             do { p = this.level.getRandomFloorPoint(); } 
-            while (distance(p.x, p.y, this.player.x, this.player.y) < 300 || this.isPointOnProp(p.x, p.y, 20));
+            while (distance(p.x, p.y, this.player.x, this.player.y) < 400 || this.isPointOnProp(p.x, p.y, 20));
 
-            let type = 'basic', r = Math.random();
-            if (this.levelIndex > 1 && r < 0.2) type = 'fast'; else if (this.levelIndex > 2 && r < 0.3) type = 'tank'; else if (this.levelIndex > 3 && r < 0.4) type = 'summoner'; else if (this.levelIndex > 4 && r < 0.5) type = 'healer'; else if (this.levelIndex > 4 && r < 0.6) type = 'shielded';
-            this.enemies.push(new Enemy(type, p.x, p.y, scale));
+            let groupSize = randInt(2, 5);
+            for(let i=0; i<groupSize; i++) {
+                let r = Math.random();
+                let type = 'basic';
+                if (this.levelIndex >= 1 && r < 0.2) type = 'fast'; 
+                else if (this.levelIndex >= 2 && r < 0.4) type = 'tank'; 
+                else if (this.levelIndex >= 3 && r < 0.5) type = 'shielded'; 
+                else if (this.levelIndex >= 3 && r < 0.6) type = 'summoner'; 
+                else if (this.levelIndex >= 4 && r < 0.7) type = 'healer';
+                
+                let ox = p.x + randRange(-40, 40);
+                let oy = p.y + randRange(-40, 40);
+                if(!this.level.checkCollision(ox, oy, 15)) {
+                    this.enemies.push(new Enemy(type, ox, oy, scale));
+                }
+            }
         }
     }
 
@@ -1287,14 +1314,27 @@ class Game {
         this.waveTimer = 5; const scale = 1 + this.wave * 0.15;
         if (this.wave % 10 === 0) {
             let p; do { p = this.level.getRandomFloorPoint(); } while (distance(p.x, p.y, this.player.x, this.player.y) < 400 || this.isPointOnProp(p.x, p.y, 30));
-            this.enemies.push(new Enemy('boss', p.x, p.y, scale)); audioSys.sfxBossSpawn();
+            this.enemies.push(new Enemy('boss', p.x, p.y, scale)); 
+            audioSys.sfxBossSpawn();
+            audioSys.startBGM('boss');
         } else {
-            const numEnemies = 5 + this.wave * 2;
-            for (let i = 0; i < numEnemies; i++) {
+            const numGroups = 3 + Math.floor(this.wave / 2);
+            for (let g = 0; g < numGroups; g++) {
                 let p; do { p = this.level.getRandomFloorPoint(); } while (distance(p.x, p.y, this.player.x, this.player.y) < 400 || this.isPointOnProp(p.x, p.y, 20));
-                let type = 'basic', r = Math.random();
-                if (this.wave > 2 && r < 0.2) type = 'fast'; else if (this.wave > 4 && r < 0.3) type = 'tank'; else if (this.wave > 6 && r < 0.4) type = 'shielded';
-                this.enemies.push(new Enemy(type, p.x, p.y, scale));
+                let groupSize = randInt(2, 5);
+                for(let i=0; i<groupSize; i++) {
+                    let type = 'basic', r = Math.random();
+                    if (this.wave >= 2 && r < 0.2) type = 'fast'; 
+                    else if (this.wave >= 4 && r < 0.4) type = 'tank'; 
+                    else if (this.wave >= 5 && r < 0.5) type = 'shielded';
+                    else if (this.wave >= 6 && r < 0.6) type = 'summoner';
+                    
+                    let ox = p.x + randRange(-40, 40);
+                    let oy = p.y + randRange(-40, 40);
+                    if(!this.level.checkCollision(ox, oy, 15)) {
+                        this.enemies.push(new Enemy(type, ox, oy, scale));
+                    }
+                }
             }
         }
         this.wave++;
@@ -1377,7 +1417,9 @@ class Game {
         if (this.mode === 'STORY' && activeEnemies === 0) {
             if (this.levelIndex === this.targetLevels - 1 && !this.bossSpawned) {
                 this.bossSpawned = true; let p; do { p = this.level.getRandomFloorPoint(); } while(distance(p.x, p.y, this.player.x, this.player.y) < 300 || this.isPointOnProp(p.x, p.y, 30));
-                this.enemies.push(new Enemy('boss', p.x, p.y, 1 + this.levelIndex * 0.2)); audioSys.sfxBossSpawn();
+                this.enemies.push(new Enemy('boss', p.x, p.y, 1 + this.levelIndex * 0.2)); 
+                audioSys.sfxBossSpawn();
+                audioSys.startBGM('boss');
             } else if (!this.portal && (this.levelIndex < this.targetLevels - 1 || this.bossSpawned)) {
                 let px = this.player.x, py = this.player.y;
                 let valid = false, prx, pry;
