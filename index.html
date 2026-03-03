@@ -442,12 +442,29 @@ class Level {
         let q = [{r: tR, c: tC}]; this.flowField[tR][tC] = 0;
         let dirs = [[-1,0], [1,0], [0,-1], [0,1], [-1,-1], [1,-1], [-1,1], [1,1]];
         let head = 0;
+
+        let costMap = [];
+        for (let r=0; r<this.rows; r++) {
+            costMap[r] = [];
+            for (let c=0; c<this.cols; c++) {
+                costMap[r][c] = 1;
+                if (this.grid[r][c] === 0) {
+                    let nearWall = false;
+                    for(let d of dirs) {
+                        let nr = r+d[0], nc = c+d[1];
+                        if(nr>=0 && nr<this.rows && nc>=0 && nc<this.cols && this.grid[nr][nc]===1) { nearWall = true; break; }
+                    }
+                    if(nearWall) costMap[r][c] = 4;
+                }
+            }
+        }
+
         while(head < q.length) {
             let curr = q[head++];
             for (let d of dirs) {
                 let nr = curr.r + d[0], nc = curr.c + d[1];
                 if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols && this.grid[nr][nc] === 0) {
-                    let step = (d[0] !== 0 && d[1] !== 0) ? 1.414 : 1;
+                    let step = ((d[0] !== 0 && d[1] !== 0) ? 1.414 : 1) * costMap[nr][nc];
                     if (this.flowField[nr][nc] > this.flowField[curr.r][curr.c] + step) {
                         this.flowField[nr][nc] = this.flowField[curr.r][curr.c] + step;
                         q.push({r: nr, c: nc});
@@ -461,10 +478,21 @@ class Level {
         const sr = Math.max(0, Math.floor(camera.y/this.tileSize)), er = Math.min(this.rows, Math.ceil((camera.y+CANVAS_HEIGHT)/this.tileSize));
         for (let y = sr; y < er; y++) {
             for (let x = sc; x < ec; x++) {
+                const rx = x*this.tileSize;
+                const ry = y*this.tileSize;
+                const s = this.tileSize;
+                
                 if (this.grid[y][x] === 1) {
-                    ctx.fillStyle = '#0a0a10'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize+1, this.tileSize+1);
+                    ctx.fillStyle = '#1c1c24'; 
+                    ctx.fillRect(rx, ry, s, s);
+                    ctx.fillStyle = '#0a0a10'; 
+                    ctx.fillRect(rx, ry + s - 10, s, 10);
+                    ctx.strokeStyle = '#00ffcc';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(rx, ry, s, s);
                 } else {
-                    ctx.fillStyle = '#111118'; ctx.fillRect(x*this.tileSize, y*this.tileSize, this.tileSize+1, this.tileSize+1);
+                    ctx.fillStyle = '#111115'; 
+                    ctx.fillRect(rx, ry, s, s);
                 }
             }
         }
@@ -514,7 +542,12 @@ class Prop {
         this.hp -= amt;
         if(this.hp <= 0) {
             this.active = false;
-            if(this.type === 'barrel') game.explosions.push(new Explosion(this.x, this.y, 100, 50, true, '#ff5500'));
+            if(this.type === 'barrel') {
+                game.explosions.push(new Explosion(this.x, this.y, 100, 50, true, '#ff5500'));
+            } else if (this.type === 'cover') {
+                if (Math.random() < 0.25) game.items.push(new Item('coin', this.x, this.y));
+                else if (Math.random() < 0.1) game.items.push(new Item('heal', this.x, this.y));
+            }
             game.spawnParticles(this.x, this.y, '#aaa', 15);
         }
     }
@@ -593,13 +626,13 @@ class Weapon {
     }
     draw(ctx, px, py, angle) {
         ctx.save(); ctx.translate(px, py); ctx.rotate(angle);
-        ctx.translate(0, 10);
+        ctx.translate(6, 8);
         ctx.fillStyle = this.config.color;
-        if(this.config.type === 'pistol') ctx.fillRect(10, -3, 12, 6);
-        else if(this.config.type === 'shotgun') { ctx.fillRect(10, -5, 18, 4); ctx.fillRect(10, 1, 18, 4); }
-        else if(this.config.type === 'rifle' || this.config.type === 'laser') ctx.fillRect(10, -2, 25, 4);
-        else if(this.config.type === 'sniper') { ctx.fillRect(10, -2, 35, 4); ctx.fillRect(15, -4, 10, 8); }
-        else if(this.config.type === 'grenade') { ctx.fillRect(10, -4, 20, 8); ctx.fillRect(30, -6, 5, 12); }
+        if(this.config.type === 'pistol') ctx.fillRect(0, -3, 12, 6);
+        else if(this.config.type === 'shotgun') { ctx.fillRect(0, -5, 18, 4); ctx.fillRect(0, 1, 18, 4); }
+        else if(this.config.type === 'rifle' || this.config.type === 'laser') ctx.fillRect(0, -2, 25, 4);
+        else if(this.config.type === 'sniper') { ctx.fillRect(0, -2, 35, 4); ctx.fillRect(5, -4, 10, 8); }
+        else if(this.config.type === 'grenade') { ctx.fillRect(0, -4, 20, 8); ctx.fillRect(20, -6, 5, 12); }
         ctx.restore();
     }
 }
@@ -737,7 +770,9 @@ class Player {
         else if (game.input.keys['KeyR'] && !this.weapon.reloading && this.weapon.ammo < this.weapon.config.magSize) this.weapon.startReload();
 
         if (game.input.mouse.down || (this.weapon.config.auto && game.input.mouse.down)) {
-            this.weapon.fire(this.x, this.y, targetX, targetY, game, game.time);
+            let fireX = this.x + Math.cos(this.angle)*6 - Math.sin(this.angle)*8;
+            let fireY = this.y + Math.sin(this.angle)*6 + Math.cos(this.angle)*8;
+            this.weapon.fire(fireX, fireY, targetX, targetY, game, game.time);
             if(!this.weapon.config.auto) game.input.mouse.down = false;
         }
     }
@@ -842,9 +877,12 @@ class Enemy {
                 if (this.bossAimTimer <= 0) {
                     this.bossState = 'FIRE'; this.bossAimTimer = 0.5; audioSys.sfxLaserFire();
                     let lx = this.x, ly = this.y, hitPlayer = false;
-                    for(let i=0; i<1000; i+=10) {
+                    for(let i=0; i<1500; i+=10) {
                         lx += Math.cos(this.bossAimAngle)*10; ly += Math.sin(this.bossAimAngle)*10;
-                        if(distance(lx, ly, player.x, player.y) < player.radius + 15) hitPlayer = true;
+                        if(distance(lx, ly, player.x, player.y) < player.radius + 20) {
+                            hitPlayer = true;
+                            break;
+                        }
                     }
                     if(hitPlayer) player.takeDamage(this.damage * 2, game);
                     game.customParticles.push({ type: 'laser', x: this.x, y: this.y, angle: this.bossAimAngle, life: 0.5 });
@@ -855,7 +893,11 @@ class Enemy {
             if (!this.aggro) {
                 this.wander(dt, level);
             } else {
-                if (this.eType === 'ranged' && dist < 400 && dist > 100 && this.checkLOS(player, level)) this.weapon.fire(this.x, this.y, player.x, player.y, game, game.time, true);
+                if (this.eType === 'ranged' && dist < 400 && dist > 100 && this.checkLOS(player, level)) {
+                    let fireX = this.x + Math.cos(Math.atan2(player.y-this.y, player.x-this.x))*15;
+                    let fireY = this.y + Math.sin(Math.atan2(player.y-this.y, player.x-this.x))*15;
+                    this.weapon.fire(fireX, fireY, player.x, player.y, game, game.time, true);
+                }
                 else if (this.eType === 'summoner' && this.actionTimer <= 0 && dist < 600) {
                     let spawnRads = [0, Math.PI/2, Math.PI, Math.PI*1.5];
                     let spawned = false;
@@ -948,13 +990,33 @@ class Enemy {
         ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius*0.3, 0, Math.PI*2); ctx.fill();
         
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        let rot = this.aggro ? Math.atan2(window.gameInstance.player.y - this.y, window.gameInstance.player.x - this.x) : this.wanderAngle;
+        ctx.rotate(rot);
+        if (this.eType === 'melee') {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(8, 4, 18, 3);
+        } else if (this.eType === 'ranged' || this.type === 'boss') {
+            ctx.fillStyle = '#555';
+            ctx.fillRect(8, 4, 22, 5);
+            ctx.fillStyle = '#0ff';
+            ctx.fillRect(26, 5, 4, 3);
+        } else if (this.eType === 'summoner' || this.eType === 'healer') {
+            ctx.fillStyle = '#a0f';
+            ctx.fillRect(8, 4, 15, 3);
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(23, 5, 4, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
         if(this.eType === 'shielded') {
             ctx.strokeStyle = '#0088ff'; ctx.lineWidth = 4; ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius+4, -Math.PI/2, Math.PI/2); ctx.stroke();
         }
         if (this.type === 'boss') {
             ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.moveTo(this.x-12, this.y-this.radius+2); ctx.lineTo(this.x-16, this.y-this.radius-12); ctx.lineTo(this.x-4, this.y-this.radius-4); ctx.lineTo(this.x, this.y-this.radius-16); ctx.lineTo(this.x+4, this.y-this.radius-4); ctx.lineTo(this.x+16, this.y-this.radius-12); ctx.lineTo(this.x+12, this.y-this.radius+2); ctx.fill();
-            if (this.bossState === 'AIM') { ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x + Math.cos(this.bossAimAngle)*1000, this.y + Math.sin(this.bossAimAngle)*1000); ctx.stroke(); }
+            if (this.bossState === 'AIM') { ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x + Math.cos(this.bossAimAngle)*1500, this.y + Math.sin(this.bossAimAngle)*1500); ctx.stroke(); }
         }
         if(this.hp < this.maxHp) { ctx.fillStyle = '#f00'; ctx.fillRect(this.x - 15, this.y - this.radius - 8, 30, 4); ctx.fillStyle = '#0f0'; ctx.fillRect(this.x - 15, this.y - this.radius - 8, 30 * (this.hp/this.maxHp), 4); }
     }
@@ -1241,24 +1303,24 @@ class Game {
         this.level = new Level(this.levelIndex, false);
         const spawn = this.level.getSpawnPoint(); this.player.x = spawn.x; this.player.y = spawn.y;
         
-        const numProps = randInt(5, 15);
+        const numProps = randInt(20, 40);
         for(let i=0; i<numProps; i++) {
             let p = this.level.getRandomFloorPoint(); while (distance(p.x, p.y, this.player.x, this.player.y) < 200) p = this.level.getRandomFloorPoint();
-            let type = Math.random() < 0.4 ? 'barrel' : (Math.random() < 0.5 ? 'cover' : 'trap');
+            let type = Math.random() < 0.2 ? 'barrel' : (Math.random() < 0.8 ? 'cover' : 'trap');
             this.props.push(new Prop(type, p.x, p.y));
         }
 
         this.level.buildFlowField(this.player.x, this.player.y);
         this.lastFlowX = this.player.x; this.lastFlowY = this.player.y;
         
-        const numEnemyGroups = 4 + this.levelIndex * 2;
+        const numEnemyGroups = 6 + this.levelIndex * 3;
         const scale = 1 + this.levelIndex * 0.2;
         for (let g = 0; g < numEnemyGroups; g++) {
             let p;
             do { p = this.level.getRandomFloorPoint(); } 
             while (distance(p.x, p.y, this.player.x, this.player.y) < 400 || this.isPointOnProp(p.x, p.y, 20));
 
-            let groupSize = randInt(2, 5);
+            let groupSize = randInt(3, 7);
             for(let i=0; i<groupSize; i++) {
                 let r = Math.random();
                 let type = 'basic';
@@ -1318,16 +1380,17 @@ class Game {
             audioSys.sfxBossSpawn();
             audioSys.startBGM('boss');
         } else {
-            const numGroups = 3 + Math.floor(this.wave / 2);
+            const numGroups = 4 + Math.floor(this.wave / 2);
             for (let g = 0; g < numGroups; g++) {
                 let p; do { p = this.level.getRandomFloorPoint(); } while (distance(p.x, p.y, this.player.x, this.player.y) < 400 || this.isPointOnProp(p.x, p.y, 20));
-                let groupSize = randInt(2, 5);
+                let groupSize = randInt(3, 7);
                 for(let i=0; i<groupSize; i++) {
                     let type = 'basic', r = Math.random();
                     if (this.wave >= 2 && r < 0.2) type = 'fast'; 
                     else if (this.wave >= 4 && r < 0.4) type = 'tank'; 
                     else if (this.wave >= 5 && r < 0.5) type = 'shielded';
                     else if (this.wave >= 6 && r < 0.6) type = 'summoner';
+                    else if (this.wave >= 6 && r < 0.7) type = 'healer';
                     
                     let ox = p.x + randRange(-40, 40);
                     let oy = p.y + randRange(-40, 40);
@@ -1485,7 +1548,7 @@ class Game {
         this.customParticles.forEach(p => {
             if(p.type === 'laser') {
                 this.ctx.strokeStyle = '#ff0000'; this.ctx.lineWidth = 15 * (p.life/0.5); this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y);
-                this.ctx.lineTo(p.x + Math.cos(p.angle)*1000, p.y + Math.sin(p.angle)*1000); this.ctx.stroke();
+                this.ctx.lineTo(p.x + Math.cos(p.angle)*1500, p.y + Math.sin(p.angle)*1500); this.ctx.stroke();
             }
         });
 
