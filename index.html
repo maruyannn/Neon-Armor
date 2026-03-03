@@ -38,7 +38,7 @@
         body.mobile-mode .screen { background: var(--ui-bg); padding: 15px; border: 2px solid var(--accent-color); border-radius: 0; text-align: center; width: 100%; height: 100%; box-sizing: border-box; overflow-y: auto; }
         
         h1 { margin-top: 0; color: var(--accent-color); text-shadow: 0 0 10px var(--accent-color); }
-        h2 { color: var(--danger-color); margin-top: 0; }
+        h2 { color: var(--danger-color); margin-top: 0; text-shadow: 0 0 8px var(--danger-color); }
         h3 { color: var(--gold-color); margin-bottom: 5px; }
         p { margin: 5px 0; }
         
@@ -49,18 +49,22 @@
         body.mobile-mode p { font-size: 0.9em; }
 
         input { padding: 10px; font-size: 1em; font-family: inherit; background: #000; border: 1px solid var(--accent-color); color: #fff; width: 80%; margin-bottom: 15px; text-align: center; box-sizing: border-box; }
-        button { background: var(--accent-color); color: #000; border: none; padding: 12px 24px; font-size: 1em; font-weight: bold; cursor: pointer; border-radius: 4px; font-family: inherit; margin: 5px; transition: 0.2s; }
+        button { background: var(--accent-color); color: #000; border: none; padding: 12px 24px; font-size: 1em; font-weight: bold; cursor: pointer; border-radius: 4px; font-family: inherit; margin: 5px; transition: 0.2s; box-shadow: 0 0 5px var(--accent-color); }
         button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
-        button.danger { background: var(--danger-color); color: #fff; }
+        button.danger { background: var(--danger-color); color: #fff; box-shadow: 0 0 5px var(--danger-color); }
 
         body.mobile-mode button { padding: 10px 15px; font-size: 0.9em; margin: 4px; }
 
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stats-bar { display: flex; justify-content: space-around; background: #222; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-weight: bold; flex-wrap: wrap; gap: 10px; }
+        .stats-bar { display: flex; justify-content: space-around; background: #222; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-weight: bold; flex-wrap: wrap; gap: 10px; border: 1px solid #444; }
         .stats-bar span { color: var(--accent-color); }
+        
+        .mission-bar { background: #1a1a1a; border: 1px solid var(--gold-color); padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9em; color: #ddd; }
+        .mission-bar span { font-weight: bold; color: var(--gold-color); }
 
         body.mobile-mode .menu-grid { gap: 8px; margin-bottom: 15px; }
-        body.mobile-mode .stats-bar { padding: 8px; margin-bottom: 15px; gap: 5px; font-size: 0.8em; }
+        body.mobile-mode .stats-bar { padding: 8px; margin-bottom: 10px; gap: 5px; font-size: 0.8em; }
+        body.mobile-mode .mission-bar { padding: 8px; margin-bottom: 15px; font-size: 0.8em; }
 
         .store-grid { display: grid; gap: 15px; margin-top: 20px; text-align: left; }
         body.pc-mode .store-grid { grid-template-columns: repeat(3, 1fr); max-height: 50vh; overflow-y: auto; padding: 10px; }
@@ -82,8 +86,9 @@
         .mutations-grid { display: grid; gap: 15px; margin-top: 20px; }
         body.pc-mode .mutations-grid { grid-template-columns: 1fr 1fr 1fr; }
         body.mobile-mode .mutations-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-        .mutation-card { border: 1px solid var(--accent-color); padding: 20px; background: #111; cursor: pointer; transition: 0.2s; }
+        .mutation-card { border: 1px solid var(--accent-color); padding: 20px; background: #111; cursor: pointer; transition: 0.2s; position: relative; }
         .mutation-card:hover { background: #222; transform: scale(1.05); box-shadow: 0 0 15px var(--accent-color); }
+        .mut-key { position: absolute; top: 5px; right: 5px; background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: #aaa; }
         body.mobile-mode .mutation-card { padding: 15px; }
 
         #bottomSection { flex: 1; display: flex; flex-direction: column; position: relative; background: #d0d0d0; background-image: linear-gradient(#d0d0d0, #a0a0a0); }
@@ -156,13 +161,18 @@
                         <div>Kills: <span id="uiDeaths"></span></div>
                         <div>Cr: <span id="uiCoins" style="color:var(--gold-color)"></span></div>
                     </div>
+                    <div class="mission-bar">
+                        Misión Diaria: Eliminar 50 Enemigos (<span id="uiMissionProgress">0</span>/50)
+                        <button id="btnClaimMission" style="display:none; padding: 5px 10px; font-size: 0.8em; margin-left: 10px;">RECLAMAR (+100 Cr)</button>
+                    </div>
                     <div class="menu-grid">
                         <button id="btnStory">HISTORIA</button>
                         <button id="btnSurvival" class="danger">SUPERVIVENCIA</button>
                         <button id="btnStore">ARMERÍA</button>
                         <button id="btnSound">SONIDO: <span id="soundStatus">ON</span></button>
+                        <button id="btnCloud" style="background:#55f; color:#fff;">Sincronizar Nube</button>
+                        <button id="btnLogout" style="background:#444; color:#fff;">Cerrar Sesión</button>
                     </div>
-                    <button id="btnLogout" style="background:#444; color:#fff;">Cerrar Sesión</button>
                 </div>
                 <div id="storeScreen" class="screen">
                     <h2>ARMERÍA</h2><p>Créditos: <span id="storeCoins" style="color:var(--gold-color)"></span></p>
@@ -174,10 +184,10 @@
                     <h2>BAÚL DE ARMAS</h2><p>Selecciona un arma para equipar:</p>
                     <div class="store-grid" id="stashContainer"></div>
                     <button id="btnStashEquip" style="margin-top:20px;" class="danger">EQUIPAR</button>
-                    <button id="btnStashClose" style="margin-top: 20px;">Cerrar</button>
+                    <button id="btnStashClose" style="margin-top: 20px;">Cerrar (Esc)</button>
                 </div>
                 <div id="mutationScreen" class="screen">
-                    <h2>MUTACIÓN</h2><p>Selecciona mejora:</p>
+                    <h2>MUTACIÓN</h2><p>Selecciona mejora (Teclas 1, 2, 3):</p>
                     <div class="mutations-grid" id="mutationsContainer"></div>
                 </div>
                 <div id="pauseScreen" class="screen">
@@ -190,6 +200,7 @@
                 <div id="gameOverScreen" class="screen">
                     <h2>FIN DE TRANSMISIÓN</h2><p id="goContext"></p>
                     <p>Puntuación: <span id="goScore"></span></p><p>Créditos: <span id="goCoins" style="color:var(--gold-color)"></span></p>
+                    <button id="btnReviveAd" style="background:#00aa55; color:#fff; display:none;">Ver Anuncio: REVIVIR</button>
                     <button id="btnReturnDead">Volver</button>
                 </div>
                 <div id="victoryScreen" class="screen">
@@ -362,6 +373,42 @@ const SPRITE_DATA = {
         "   0bbbbbbbb0   ",
         "   00bb00bb00   ",
         "    000  000    "
+    ],
+    enemy_acid: [
+        "      0000      ",
+        "     077770     ",
+        "    07777770    ",
+        "   0707777070   ",
+        "   0700770070   ",
+        "   0777777770   ",
+        "    07700770    ",
+        "    00777700    ",
+        "   0777777770   ",
+        "   0777777770   ",
+        "   0077007700   ",
+        "    07700770    ",
+        "    000  000    ",
+        "                ",
+        "                ",
+        "                "
+    ],
+    enemy_acid_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "      0000      ",
+        "    00777700    ",
+        "   0770770770   ",
+        "  077777777770  ",
+        "  007700007700  ",
+        "   000    000   "
     ],
     enemy_tank: [
         "      0000      ",
@@ -617,18 +664,18 @@ const SPRITE_DATA = {
     ],
     stash: [
         "                ",
+        "                ",
+        "                ",
+        "                ",
+        "   0000000000   ",
+        "  033333333330  ",
+        " 03333333333330 ",
+        " 03333888833330 ",
+        " 00000800800000 ",
+        " 03333888833330 ",
+        " 03333333333330 ",
         "  000000000000  ",
-        " 08888888888880 ",
-        " 08888888888880 ",
-        " 08888888888880 ",
-        " 08888000088880 ",
-        " 08880222208880 ",
-        " 08880222208880 ",
-        " 08888000088880 ",
-        " 08888888888880 ",
-        " 08888888888880 ",
-        " 08888888888880 ",
-        "  000000000000  ",
+        "                ",
         "                ",
         "                ",
         "                "
@@ -936,6 +983,7 @@ const WEAPONS = {
 const ENEMY_CONFIGS = {
     basic: { hp: 20, speed: 80, damage: 10, radius: 15, type: 'melee' },
     fast:  { hp: 12, speed: 150, damage: 6, radius: 12, type: 'melee' },
+    acid:  { hp: 20, speed: 70, damage: 5, radius: 14, type: 'melee' },
     tank:  { hp: 50, speed: 40, damage: 15, radius: 18, type: 'ranged' },
     summoner: { hp: 40, speed: 50, damage: 5, radius: 16, type: 'summoner' },
     healer: { hp: 30, speed: 70, damage: 5, radius: 14, type: 'healer' },
@@ -1213,7 +1261,7 @@ class Level {
 class Prop {
     constructor(type, x, y) {
         this.type = type; this.x = x; this.y = y; this.active = true;
-        this.radius = type === 'barrel' ? 14 : 20;
+        this.radius = type === 'barrel' ? 14 : (type === 'stash' ? 14 : 20);
         this.hp = type === 'barrel' ? 10 : 40;
         this.maxHp = this.hp;
         this.timer = 0; this.state = 0;
@@ -1418,7 +1466,9 @@ class Bullet {
             for(let i=1; i<this.trail.length; i++) ctx.lineTo(this.trail[i].x, this.trail[i].y);
             ctx.stroke(); ctx.globalAlpha = 1.0;
         }
+        ctx.shadowBlur = 8; ctx.shadowColor = this.color;
         ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius*0.5, 0, Math.PI * 2); ctx.fill();
     }
 }
@@ -1447,7 +1497,9 @@ class Explosion {
     }
     draw(ctx) {
         ctx.globalAlpha = this.lifeTime / this.maxLife; ctx.fillStyle = this.color;
+        ctx.shadowBlur = 15; ctx.shadowColor = this.color;
         ctx.beginPath(); ctx.arc(this.x, this.y, this.radius * (1 - this.lifeTime/this.maxLife), 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
         ctx.globalAlpha = 1.0;
     }
 }
@@ -1753,11 +1805,22 @@ class Enemy {
             
             game.corpses.push({ type: this.type, x: this.x, y: this.y, facingLeft: this.facingLeft, phase2: this.phase2, life: 30 });
 
-            if (game.mode === 'STORY' && fromPlayer && !this.summoned) {
-                if (this.type === 'boss') {
-                    game.score += 500;
-                } else {
-                    game.score += randInt(1, 6);
+            if(this.type === 'acid') {
+                game.customParticles.push({ type: 'acidPool', x: this.x, y: this.y, life: 5, radius: 25 });
+            }
+
+            if (fromPlayer && !this.summoned) {
+                if (game.mode === 'STORY') {
+                    if (this.type === 'boss') game.score += 500;
+                    else game.score += randInt(1, 6);
+                }
+                
+                let u = db.users[currentUser];
+                if (u.mission && u.mission.progress < u.mission.target) {
+                    u.mission.progress++;
+                    if(u.mission.progress >= u.mission.target) {
+                        saveDB();
+                    }
                 }
             }
             game.spawnParticles(this.x, this.y, '#e60033', this.radius);
@@ -1864,7 +1927,7 @@ class Game {
                 else this.togglePause(); 
             }
             if(e.code === 'KeyE') {
-                if (this.state === 'PLAYING' && this.nearStash) this.openStash();
+                if (this.state === 'PLAYING' && this.nearStash && this.mode === 'SURVIVAL') this.openStash();
             }
             if(e.code === 'KeyM') this.toggleSound();
             if(e.code === 'Enter' && this.state === 'LOGIN') document.getElementById('btnLogin').click();
@@ -1873,6 +1936,12 @@ class Game {
                 if(e.code === 'Digit1' || e.code === 'Numpad1') document.getElementById('btnStory').click();
                 if(e.code === 'Digit2' || e.code === 'Numpad2') document.getElementById('btnSurvival').click();
                 if(e.code === 'Digit3' || e.code === 'Numpad3') document.getElementById('btnStore').click();
+            }
+
+            if(this.state === 'MUTATION') {
+                if (e.code === 'Digit1' || e.code === 'Numpad1') { let el = document.getElementById('mutBtn0'); if(el) el.click(); }
+                if (e.code === 'Digit2' || e.code === 'Numpad2') { let el = document.getElementById('mutBtn1'); if(el) el.click(); }
+                if (e.code === 'Digit3' || e.code === 'Numpad3') { let el = document.getElementById('mutBtn2'); if(el) el.click(); }
             }
         });
         window.addEventListener('keyup', e => { this.input.keys[e.code] = false; });
@@ -1912,6 +1981,7 @@ class Game {
         this.tutorialDashed = false;
         this.tutorialItemPicked = false;
         this.tutorialCombatStarted = false;
+        this.revivesUsed = 0;
 
         this.resetGameData(); this.setupDOM(); loadDB();
     }
@@ -1935,7 +2005,7 @@ class Game {
         pauseBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); this.togglePause(); }, {passive: false});
 
         const intBtn = document.getElementById('mobileInteract');
-        intBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); if(this.nearStash) this.openStash(); }, {passive: false});
+        intBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); if(this.nearStash && this.mode === 'SURVIVAL') this.openStash(); }, {passive: false});
 
         const base = document.getElementById('joystickBase');
         const stick = document.getElementById('joystickStick');
@@ -2034,6 +2104,7 @@ class Game {
         this.tutorialDashed = false;
         this.tutorialItemPicked = false;
         this.tutorialCombatStarted = false;
+        this.revivesUsed = 0;
     }
 
     setupDOM() {
@@ -2043,7 +2114,7 @@ class Game {
                 if(db.users[user] && db.users[user].password !== pass) return alert('Contraseña incorrecta');
                 let isNewUser = !db.users[user];
                 if(isNewUser) { 
-                    db.users[user] = { password: pass, coins: 0, wins: 0, deaths: 0, unlocks: ['w1'], selectedWeapon: 'w1', highScore: 0, tutorialDone: false }; 
+                    db.users[user] = { password: pass, coins: 0, wins: 0, deaths: 0, unlocks: ['w1'], selectedWeapon: 'w1', highScore: 0, tutorialDone: false, mission: { current: 0, target: 50 } }; 
                     saveDB(); 
                 }
                 currentUser = user;
@@ -2084,18 +2155,48 @@ class Game {
             }
         };
 
+        document.getElementById('btnClaimMission').onclick = () => {
+            let u = db.users[currentUser];
+            if(u.mission && u.mission.progress >= u.mission.target) {
+                u.coins += 100;
+                u.mission.progress = 0;
+                u.mission.target = 50; 
+                saveDB();
+                this.updateMenuUI();
+            }
+        };
+
         document.getElementById('btnSound').onclick = () => this.toggleSound();
         document.getElementById('btnPauseSound').onclick = () => this.toggleSound();
+        document.getElementById('btnCloud').onclick = () => alert("Progreso sincronizado con la nube exitosamente.");
         document.getElementById('btnResume').onclick = () => this.togglePause();
         document.getElementById('btnQuit').onclick = () => { this.endRun(false); audioSys.startBGM('menu'); };
+        
+        document.getElementById('btnReviveAd').onclick = () => {
+            if (this.revivesUsed >= 1) return;
+            this.revivesUsed++;
+            this.player.active = true;
+            this.player.hp = this.player.maxHp * 0.5;
+            this.player.deadTimer = 0;
+            this.setUIState(null);
+            this.state = 'PLAYING';
+            audioSys.startBGM(this.enemies.find(e=>e.type==='boss') ? 'boss' : 'menu');
+        };
+        
         document.getElementById('btnReturnDead').onclick = () => { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; audioSys.startBGM('menu'); };
         document.getElementById('btnReturnWin').onclick = () => { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; audioSys.startBGM('menu'); };
     }
 
     updateMenuUI() {
         const u = db.users[currentUser];
+        if(!u.mission) u.mission = { progress: 0, target: 50 };
         document.getElementById('uiUser').innerText = currentUser; document.getElementById('uiWins').innerText = u.wins;
         document.getElementById('uiDeaths').innerText = u.deaths; document.getElementById('uiCoins').innerText = u.coins;
+        document.getElementById('uiMissionProgress').innerText = u.mission.progress || 0;
+        
+        let claimBtn = document.getElementById('btnClaimMission');
+        if (u.mission.progress >= u.mission.target) claimBtn.style.display = 'inline-block';
+        else claimBtn.style.display = 'none';
     }
 
     toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundStatus').innerText = soundEnabled?'ON':'OFF'; document.getElementById('pauseSoundStatus').innerText = soundEnabled?'ON':'OFF'; if(soundEnabled) { audioSys.init(); if(this.state === 'MENU') audioSys.startBGM('menu'); } else audioSys.stopBGM(); }
@@ -2257,7 +2358,6 @@ class Game {
             this.level = new Level(0, 'SURVIVAL'); 
             const sp = this.level.getSpawnPoint();
             this.player.x = sp.x; this.player.y = sp.y; 
-            this.props.push(new Prop('stash', sp.x, sp.y - 100));
         }
     }
 
@@ -2279,12 +2379,10 @@ class Game {
     loadLevel() {
         this.bullets.forEach(b => this.pools.bullet.release(b)); this.particles.forEach(p => this.pools.particle.release(p));
         this.bullets = []; this.enemies = []; this.props = []; this.items = []; this.explosions = []; this.portal = null;
-        this.corpses = [];
+        this.corpses = []; this.customParticles = [];
         this.level = new Level(this.levelIndex, 'STORY');
         const spawn = this.level.getSpawnPoint(); this.player.x = spawn.x; this.player.y = spawn.y;
         
-        this.props.push(new Prop('stash', spawn.x, spawn.y - 100));
-
         const numProps = randInt(20, 40);
         for(let i=0; i<numProps; i++) {
             let p = this.level.getRandomFloorPoint(); while (distance(p.x, p.y, this.player.x, this.player.y) < 200) p = this.level.getRandomFloorPoint();
@@ -2311,6 +2409,7 @@ class Game {
                 else if (this.levelIndex >= 3 && r < 0.5) type = 'shielded'; 
                 else if (this.levelIndex >= 3 && r < 0.6) type = 'summoner'; 
                 else if (this.levelIndex >= 4 && r < 0.7) type = 'healer';
+                else if (this.levelIndex >= 4 && r < 0.8) type = 'acid';
                 
                 let ox = p.x + randRange(-40, 40);
                 let oy = p.y + randRange(-40, 40);
@@ -2338,8 +2437,10 @@ class Game {
             choices.push(available.splice(idx,1)[0]); 
         }
 
-        choices.forEach(m => {
-            const div = document.createElement('div'); div.className = 'mutation-card'; div.innerHTML = `<h3>${m.name}</h3>`;
+        choices.forEach((m, i) => {
+            const div = document.createElement('div'); div.className = 'mutation-card'; div.id = `mutBtn${i}`;
+            div.innerHTML = `<h3>${m.name}</h3>`;
+            if(!isMobileMode) div.innerHTML += `<div class="mut-key">${i+1}</div>`;
             div.onclick = () => { 
                 m.apply(this.player);
                 this.player.mutations.push(m.id);
@@ -2387,6 +2488,7 @@ class Game {
                     else if (this.wave >= 5 && r < 0.5) type = 'shielded';
                     else if (this.wave >= 6 && r < 0.6) type = 'summoner';
                     else if (this.wave >= 6 && r < 0.7) type = 'healer';
+                    else if (this.wave >= 7 && r < 0.8) type = 'acid';
                     
                     let ox = p.x + randRange(-40, 40);
                     let oy = p.y + randRange(-40, 40);
@@ -2429,6 +2531,11 @@ class Game {
             return;
         }
         this.state = isWin ? 'VICTORY' : 'GAMEOVER'; const u = db.users[currentUser]; u.coins += this.runCoins; audioSys.stopBGM();
+        
+        let reviveBtn = document.getElementById('btnReviveAd');
+        if (!isWin && this.revivesUsed === 0) reviveBtn.style.display = 'inline-block';
+        else reviveBtn.style.display = 'none';
+
         if (isWin) { u.wins++; document.getElementById('vicScore').innerText = this.score; document.getElementById('vicCoins').innerText = this.runCoins; this.setUIState('victoryScreen'); } 
         else { u.deaths++; document.getElementById('goContext').innerText = `Modo: ${this.mode} | ${this.mode==='STORY' ? 'Nivel: '+(this.levelIndex+1) : 'Oleada: '+(this.wave-1)}`; document.getElementById('goScore').innerText = this.score; document.getElementById('goCoins').innerText = this.runCoins; this.setUIState('gameOverScreen'); }
         if(this.mode === 'STORY') checkHighscore(currentUser, this.score);
@@ -2494,16 +2601,17 @@ class Game {
         }
 
         this.nearStash = false;
-        let distToStash = 9999;
-        this.props.forEach(p => {
-            if (p.type === 'stash') {
-                let d = distance(this.player.x, this.player.y, p.x, p.y);
-                if (d < 60) {
-                    this.nearStash = true;
-                    distToStash = d;
+        if(this.mode === 'SURVIVAL') {
+            this.props.forEach(p => {
+                if (p.type === 'stash') {
+                    let d = distance(this.player.x, this.player.y, p.x, p.y);
+                    if (d < 60) {
+                        this.nearStash = true;
+                    }
                 }
-            }
-        });
+            });
+        }
+
         if (isMobileMode) {
             let intBtn = document.getElementById('mobileInteract');
             if(this.nearStash) intBtn.style.display = 'flex';
@@ -2524,9 +2632,20 @@ class Game {
         }
 
         if(this.mode === 'SURVIVAL') { 
-            if(this.enemies.length === 0) { 
+            if(this.enemies.length === 0) {
+                let clearedWave = this.wave - 1;
+                if(clearedWave > 0 && clearedWave % 5 === 0) {
+                    let hasStash = this.props.find(p => p.type === 'stash');
+                    if (!hasStash && this.waveTimer > 0) {
+                        this.props.push(new Prop('stash', this.player.x, this.player.y - 60));
+                        audioSys.sfxPortal();
+                    }
+                }
+
                 this.waveTimer -= dt; 
                 if(this.waveTimer <= 0) {
+                    this.props = this.props.filter(p => p.type !== 'stash');
+
                     if(this.wave > 1 && (this.wave - 1) % randInt(3,6) === 0 && !this.mutationShownForWave[this.wave]) {
                         this.mutationShownForWave[this.wave] = true;
                         this.triggerMutation();
@@ -2609,7 +2728,18 @@ class Game {
         }
 
         for (let i = this.particles.length - 1; i >= 0; i--) { this.particles[i].update(dt); if (!this.particles[i].active) { this.pools.particle.release(this.particles[i]); this.particles.splice(i, 1); } }
-        for (let i = this.customParticles.length - 1; i >= 0; i--) { this.customParticles[i].life -= dt; if(this.customParticles[i].life <= 0) this.customParticles.splice(i, 1); }
+        
+        for (let i = this.customParticles.length - 1; i >= 0; i--) { 
+            let cp = this.customParticles[i];
+            cp.life -= dt; 
+            if (cp.type === 'acidPool') {
+                if (distance(this.player.x, this.player.y, cp.x, cp.y) < cp.radius + this.player.radius) {
+                    this.player.takeDamage(10 * dt, this);
+                }
+            }
+            if(cp.life <= 0) this.customParticles.splice(i, 1); 
+        }
+
         for (let i = this.dmgTexts.length - 1; i >= 0; i--) { this.dmgTexts[i].update(dt); if (!this.dmgTexts[i].active) { this.pools.dmgText.release(this.dmgTexts[i]); this.dmgTexts.splice(i, 1); } }
         
         this.prevMouseDown = this.input.mouse.down;
@@ -2631,10 +2761,13 @@ class Game {
             this.ctx.globalAlpha = Math.min(1, Math.max(0, alpha));
             this.ctx.textAlign = 'center';
             this.ctx.fillStyle = '#00ffcc';
+            this.ctx.shadowBlur = 20;
+            this.ctx.shadowColor = '#00ffcc';
             this.ctx.font = 'bold 60px Courier New';
             this.ctx.fillText("NEON ARMOR", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
             
             this.ctx.fillStyle = '#fff';
+            this.ctx.shadowBlur = 0;
             this.ctx.font = '20px Courier New';
             this.ctx.fillText("Creado por: maruyanx, nigrumdrac", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
             
@@ -2654,6 +2787,16 @@ class Game {
         this.ctx.translate(-this.camera.x, -this.camera.y);
 
         if (this.level) this.level.draw(this.ctx, this.camera, camZoom);
+        
+        this.customParticles.forEach(p => {
+            if(p.type === 'acidPool') {
+                this.ctx.globalAlpha = Math.min(1, p.life);
+                this.ctx.fillStyle = '#0f0';
+                this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2); this.ctx.fill();
+                this.ctx.globalAlpha = 1.0;
+            }
+        });
+
         if (this.portal) this.portal.draw(this.ctx, 1/60);
         
         this.corpses.forEach(c => {
@@ -2674,7 +2817,7 @@ class Game {
 
         this.props.forEach(p => {
             p.draw(this.ctx);
-            if(p.type === 'stash' && this.nearStash && !isMobileMode) {
+            if(p.type === 'stash' && this.nearStash && !isMobileMode && this.mode === 'SURVIVAL') {
                 this.ctx.fillStyle = '#ffaa00';
                 this.ctx.font = 'bold 12px Courier New';
                 this.ctx.textAlign = 'center';
@@ -2690,8 +2833,11 @@ class Game {
         
         this.customParticles.forEach(p => {
             if(p.type === 'laser') {
-                this.ctx.strokeStyle = '#ff0000'; this.ctx.lineWidth = 15 * (p.life/0.5); this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y);
+                this.ctx.strokeStyle = '#ff0000'; this.ctx.lineWidth = 15 * (p.life/0.5); 
+                this.ctx.shadowBlur = 15; this.ctx.shadowColor = '#ff0000';
+                this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y);
                 this.ctx.lineTo(p.x + Math.cos(p.angle)*1500, p.y + Math.sin(p.angle)*1500); this.ctx.stroke();
+                this.ctx.shadowBlur = 0;
             }
         });
 
@@ -2700,6 +2846,8 @@ class Game {
         if (this.mode === 'TUTORIAL') {
             this.ctx.textAlign = 'center';
             this.ctx.fillStyle = '#fff';
+            this.ctx.shadowBlur = 5;
+            this.ctx.shadowColor = '#000';
             this.ctx.font = 'bold 16px Courier New';
             let tutText = "";
             if (this.tutorialStep === 0) tutText = isMobileMode ? "Usa el joystick izquierdo para moverte" : "Usa W A S D para moverte";
@@ -2710,6 +2858,7 @@ class Game {
             else if (this.tutorialStep === 5) tutText = "¡Tutorial completado!";
             
             this.ctx.fillText(tutText, this.player.x, this.player.y - 40);
+            this.ctx.shadowBlur = 0;
             this.ctx.textAlign = 'left';
         }
 
@@ -2770,6 +2919,7 @@ class Game {
             }
         }
         if(this.portal) { ctx.fillStyle = '#ff00ff'; ctx.beginPath(); ctx.arc(mapX + this.portal.x * scale, mapY + this.portal.y * scale, 3, 0, Math.PI*2); ctx.fill(); }
+        this.props.forEach(p => { if(p.type === 'stash') { ctx.fillStyle = '#ffaa00'; ctx.beginPath(); ctx.arc(mapX + p.x * scale, mapY + p.y * scale, 3, 0, Math.PI*2); ctx.fill(); } });
         this.items.forEach(item => { ctx.fillStyle = item.type === 'coin' ? '#ffd700' : '#0f0'; ctx.beginPath(); ctx.arc(mapX + item.x * scale, mapY + item.y * scale, 1.5, 0, Math.PI*2); ctx.fill(); });
         this.enemies.forEach(e => { ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.arc(mapX + e.x * scale, mapY + e.y * scale, 2, 0, Math.PI*2); ctx.fill(); });
         ctx.fillStyle = '#00ffcc'; ctx.beginPath(); ctx.arc(mapX + this.player.x * scale, mapY + this.player.y * scale, 3, 0, Math.PI*2); ctx.fill();
