@@ -253,41 +253,311 @@ const SPRITE_DATA = {
         "   0000  0000   ",
         "                "
     ],
+    player_walk: [
+        "      0000      ",
+        "    00333300    ",
+        "   0333333330   ",
+        "  033333333330  ",
+        "  011111111110  ",
+        " 01100000000110 ",
+        " 01022222222010 ",
+        " 01022222222010 ",
+        " 01022222222010 ",
+        " 01100000000110 ",
+        " 01111111111110 ",
+        "  011111111110  ",
+        "   01110011100  ",
+        "   0000 01110   ",
+        "         0000   ",
+        "                "
+    ],
     player_dead: [
         "                ",
         "                ",
-        "       0000     ",
-        "     00111100   ",
-        "    030122220   ",
+        "                ",
+        "                ",
+        "                ",
+        "       000      ",
+        "     0011100    ",
+        "    030122200   ",
         "   0330112220   ",
         "   0330111110   ",
         "    030111100   ",
         "     0011110    ",
         "      011110    ",
         "     01100110   ",
-        "    0110  0110  ",
-        "    000    000  ",
+        "    0000  0000  ",
+        "                "
+    ],
+    enemy_basic: [
+        "                ",
+        "      0000      ",
+        "     055550     ",
+        "    05555550    ",
+        "   0505555050   ",
+        "   0500550050   ",
+        "   0555555550   ",
+        "    05500550    ",
+        "    00555500    ",
+        "   0555555550   ",
+        "   0555555550   ",
+        "   0055005500   ",
+        "    05500550    ",
+        "    000  000    ",
+        "                ",
+        "                "
+    ],
+    enemy_basic_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "      0000      ",
+        "    00555500    ",
+        "   0550550550   ",
+        "  055555555550  ",
+        "  005500005500  ",
+        "   000    000   "
+    ],
+    enemy_fast: [
+        "                ",
+        "       00       ",
+        "      0bb0      ",
+        "     0bbbb0     ",
+        "    0bb00bb0    ",
+        "   0bb0bb0bb0   ",
+        "   0bbbbbbbb0   ",
+        "    0bbbbbb0    ",
+        "    00bbbb00    ",
+        "   0bbbbbbbb0   ",
+        "   00bb00bb00   ",
+        "    0bb00bb0    ",
+        "    000  000    ",
         "                ",
         "                ",
         "                "
     ],
-    enemy_basic: [
-        "    00    00    ",
-        "   0550  0550   ",
-        "  055550055550  ",
-        "  055555555550  ",
-        " 05505555550550 ",
-        " 05505555550550 ",
-        " 05555555555550 ",
-        " 05500000000550 ",
-        "  050555555050  ",
-        "  055000000550  ",
-        "   0555555550   ",
-        "   0055555500   ",
-        "  055000000550  ",
-        " 05550    05550 ",
-        " 0000      0000 ",
+    enemy_fast_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "       00       ",
+        "     00bb00     ",
+        "    0bb00bb0    ",
+        "   0bbbbbbbb0   ",
+        "   00bb00bb00   ",
+        "    000  000    "
+    ],
+    enemy_tank: [
+        "      0000      ",
+        "    00aaaa00    ",
+        "   0ddaaaadd0   ",
+        "  0dddaaaaddd0  ",
+        "  0da0aaaa0ad0  ",
+        "  0da00aa00ad0  ",
+        "  0ddaaaaaadd0  ",
+        "   0ddaaaaadd0  ",
+        "   00aaaaaa00   ",
+        "  0ddaaaaaadd0  ",
+        "  0ddaaaaaadd0  ",
+        "  00da0000ad00  ",
+        "   0aa0  0aa0   ",
+        "   000    000   ",
+        "                ",
         "                "
+    ],
+    enemy_tank_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "      0000      ",
+        "    00aaaa00    ",
+        "   0dd0aa0dd0   ",
+        "  0dddaaaaddd0  ",
+        "  0ddaaaaaadd0  ",
+        "   0da0000ad0   ",
+        "   0aa0  0aa0   ",
+        "   000    000   "
+    ],
+    enemy_summoner: [
+        "      0000      ",
+        "     099990     ",
+        "    09999990    ",
+        "   0900990090   ",
+        "   0902992090   ",
+        "   0999999990   ",
+        "    09999990    ",
+        "    00999900    ",
+        "   0999999990   ",
+        "   0999999990   ",
+        "  099900009990  ",
+        "  0990    0990  ",
+        "  000      000  ",
+        "                ",
+        "                ",
+        "                "
+    ],
+    enemy_summoner_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "      0000      ",
+        "    00999900    ",
+        "   0990990990   ",
+        "  099999999990  ",
+        "  009900009900  ",
+        "   000    000   ",
+        "                "
+    ],
+    enemy_healer: [
+        "      0000      ",
+        "     077770     ",
+        "    07777770    ",
+        "   0700770070   ",
+        "   0704774070   ",
+        "   0777777770   ",
+        "    07777770    ",
+        "    00777700    ",
+        "   0777777770   ",
+        "   0777777770   ",
+        "  077700007770  ",
+        "  0770    0770  ",
+        "  000      000  ",
+        "                ",
+        "                ",
+        "                "
+    ],
+    enemy_healer_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "      0000      ",
+        "    00777700    ",
+        "   0770770770   ",
+        "  077777777770  ",
+        "  007700007700  ",
+        "   000    000   ",
+        "                "
+    ],
+    enemy_shielded: [
+        "      0000      ",
+        "    00cccc00    ",
+        "   0ddccccdd0   ",
+        "  0dddccccddd0  ",
+        "  0dc0cccc0cd0  ",
+        "  0dc00cc00cd0  ",
+        "  0ddccccccdd0  ",
+        "   0ddccccdd0   ",
+        "   00cccccc00   ",
+        "  0ddccccccdd0  ",
+        "  0ddccccccdd0  ",
+        "  00dc0000cd00  ",
+        "   0cc0  0cc0   ",
+        "   000    000   ",
+        "                ",
+        "                "
+    ],
+    enemy_shielded_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "      0000      ",
+        "    00cccc00    ",
+        "   0dd0cc0dd0   ",
+        "  0dddccccddd0  ",
+        "  0ddccccccdd0  ",
+        "   0dc0000cd0   ",
+        "   0cc0  0cc0   ",
+        "   000    000   "
+    ],
+    enemy_boss: [
+        "  00        00  ",
+        " 0aa0      0aa0 ",
+        " 0aa0      0aa0 ",
+        "  0a00000000a0  ",
+        "  0aaaaaaaa00   ",
+        " 0aaaaaaaaaa0   ",
+        "0a0555aa5550a0  ",
+        "0a0555aa5550a0  ",
+        "0a0aaaaaaaa0a0  ",
+        " 000444444000   ",
+        "   0aaaaaa0     ",
+        "  0a0aaaa0a0    ",
+        " 0aa0    0aa0   ",
+        " 000      000   ",
+        "                ",
+        "                "
+    ],
+    enemy_boss_angry: [
+        "  00        00  ",
+        " 0aa0      0aa0 ",
+        " 0bb0      0bb0 ",
+        "  0b00000000b0  ",
+        "  0aabaaaba00   ",
+        " 0aaaabbbaaaa0  ",
+        "0a0bbb00bbb0a0  ",
+        "0a0bbb00bbb0a0  ",
+        "0a0aaaaaaaa0a0  ",
+        " 000b4444b000   ",
+        "   0aabbaa0     ",
+        "  0a0bbaa0a0    ",
+        " 0aa0    0aa0   ",
+        " 000      000   ",
+        "                ",
+        "                "
+    ],
+    enemy_boss_dead: [
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "                ",
+        "  00        00  ",
+        " 0aa0      0aa0 ",
+        "  0a00000000a0  ",
+        "  0aa00aa00aa0  ",
+        " 0aaaaaaaaaaaa0 ",
+        "  00aaaaaa0000  ",
+        "   0aa0  0aa0   ",
+        "   000    000   "
     ],
     crate: [
         "  000000000000  ",
@@ -347,7 +617,9 @@ const SPRITE_DATA = {
 
 const SPRITE_COLORS = {
     '0': '#000000', '1': '#fa7014', '2': '#00ffff', '3': '#8b5a2b', 
-    '4': '#dddddd', '5': '#e60033', '6': '#a05a2c', '7': '#00ff00', '8': '#ffd700'
+    '4': '#dddddd', '5': '#e60033', '6': '#a05a2c', '7': '#00ff00', 
+    '8': '#ffd700', '9': '#8800ff', 'a': '#aa0000', 'b': '#ffaa00', 
+    'c': '#0088ff', 'd': '#555555'
 };
 
 window.renderedSprites = {};
@@ -764,7 +1036,12 @@ class Weapon {
     }
     draw(ctx, px, py, angle) {
         ctx.save(); ctx.translate(px, py); ctx.rotate(angle);
-        ctx.translate(10, 8);
+        
+        if (Math.abs(angle) > Math.PI / 2) {
+            ctx.scale(1, -1);
+        }
+        
+        ctx.translate(10, 0);
         ctx.fillStyle = '#dddddd';
         if(this.config.type === 'pistol') ctx.fillRect(0, -3, 12, 6);
         else if(this.config.type === 'shotgun') { ctx.fillRect(0, -5, 18, 4); ctx.fillRect(0, 1, 18, 4); }
@@ -864,7 +1141,7 @@ class Player {
         this.isDashing = false; this.dashTimer = 0; this.dashCooldown = 1.5; this.dashCooldownTimer = 0;
         this.invulnerableTimer = 0; this.angle = 0;
         this.dmgMult = 1.0; this.defenseMult = 1.0; this.bounceCount = 0;
-        this.mutations = []; this.deadTimer = 0;
+        this.mutations = []; this.deadTimer = 0; this.isMoving = false;
     }
     update(dt, game, level) {
         if (this.dashCooldownTimer > 0) this.dashCooldownTimer -= dt;
@@ -878,7 +1155,8 @@ class Player {
         let dx = 0, dy = 0;
         if (game.input.keys['KeyW']) dy -= 1; if (game.input.keys['KeyS']) dy += 1;
         if (game.input.keys['KeyA']) dx -= 1; if (game.input.keys['KeyD']) dx += 1;
-        if (dx !== 0 || dy !== 0) { const len = Math.hypot(dx, dy); dx /= len; dy /= len; }
+        this.isMoving = dx !== 0 || dy !== 0;
+        if (this.isMoving) { const len = Math.hypot(dx, dy); dx /= len; dy /= len; }
 
         const curSpeed = this.isDashing ? this.baseSpeed * 3 : this.baseSpeed;
         let nx = this.x + dx * curSpeed * dt, ny = this.y + dy * curSpeed * dt;
@@ -898,7 +1176,7 @@ class Player {
                 }
             }
             if (closest) { targetX = closest.x; targetY = closest.y; }
-            else if (dx !== 0 || dy !== 0) { targetX = this.x + dx * 100; targetY = this.y + dy * 100; }
+            else if (this.isMoving) { targetX = this.x + dx * 100; targetY = this.y + dy * 100; }
         }
 
         this.angle = Math.atan2(targetY - this.y, targetX - this.x);
@@ -926,21 +1204,29 @@ class Player {
         game.showDmgText(this.x, this.y, finalDmg, '#f00');
         if (this.hp <= 0) { this.hp = 0; this.active = false; }
     }
-    draw(ctx) {
+    draw(ctx, time) {
         ctx.save();
         ctx.translate(this.x, this.y);
         
         if (!this.active) {
             if(window.renderedSprites.player_dead) ctx.drawImage(window.renderedSprites.player_dead, -this.radius*1.5, -this.radius*1.5, this.radius*3, this.radius*3);
         } else {
-            ctx.rotate(this.angle);
+            let facingLeft = Math.cos(this.angle) < 0;
+            ctx.save();
+            ctx.scale(facingLeft ? -1 : 1, 1);
             if (this.invulnerableTimer > 0 && Math.floor(this.invulnerableTimer * 20) % 2 === 0) {
                 ctx.globalAlpha = 0.5;
             }
-            if(window.renderedSprites.player) ctx.drawImage(window.renderedSprites.player, -this.radius*1.5, -this.radius*1.5, this.radius*3, this.radius*3);
+            
+            let sprite = window.renderedSprites.player;
+            if (this.isMoving && Math.floor(time / 150) % 2 === 0) {
+                sprite = window.renderedSprites.player_walk;
+            }
+            
+            if(sprite) ctx.drawImage(sprite, -this.radius*1.5, -this.radius*1.5, this.radius*3, this.radius*3);
             ctx.restore();
-            this.weapon.draw(ctx, this.x, this.y, this.angle);
-            return; 
+            
+            this.weapon.draw(ctx, 0, 0, this.angle);
         }
         ctx.restore();
     }
@@ -959,6 +1245,8 @@ class Enemy {
         this.aggro = (type === 'boss' || summoned);
         this.wanderAngle = Math.random() * Math.PI * 2;
         this.wanderTimer = 0;
+        this.isMoving = false;
+        this.facingLeft = false;
         
         if(this.eType === 'ranged' || this.eType === 'boss') this.weapon = new Weapon({ damage: this.damage, fireRate: 2000, speed: 300, spread: 0.1, color: '#ffaa00', explosive: true, radius: 40, magSize: 999 });
         if(this.type === 'boss') { 
@@ -979,6 +1267,9 @@ class Enemy {
             this.wanderTimer = randRange(1, 3);
         }
         let dx = Math.cos(this.wanderAngle), dy = Math.sin(this.wanderAngle);
+        this.isMoving = true;
+        this.facingLeft = dx < 0;
+        
         let nx = this.x + dx * (this.speed * 0.4) * dt, ny = this.y + dy * (this.speed * 0.4) * dt;
         if (!level.checkCollision(nx, this.y, this.radius)) this.x = nx; else this.wanderAngle += Math.PI;
         if (!level.checkCollision(this.x, ny, this.radius)) this.y = ny; else this.wanderAngle += Math.PI;
@@ -986,6 +1277,8 @@ class Enemy {
     update(dt, game, level) {
         if (this.flashTimer > 0) this.flashTimer -= dt;
         const player = game.player; const dist = distance(this.x, this.y, player.x, player.y);
+        
+        this.isMoving = false;
         
         if (!this.aggro) {
             if (dist < 600 && this.checkLOS(player, level)) this.aggro = true;
@@ -1020,6 +1313,7 @@ class Enemy {
                 if (Math.random() < 0.005) { 
                     this.bossState = 'AIM'; this.bossAimTimer = this.phase2 ? 0.6 : 1.0;
                     this.bossAimAngle = Math.atan2(player.y - this.y, player.x - this.x);
+                    this.facingLeft = Math.cos(this.bossAimAngle) < 0;
                     audioSys.sfxLaserWarn();
                 } else this.moveAI(dt, player, level, dist, game);
             } else if (this.bossState === 'AIM') {
@@ -1044,8 +1338,10 @@ class Enemy {
                 this.wander(dt, level);
             } else {
                 if (this.eType === 'ranged' && dist < 400 && dist > 100 && this.checkLOS(player, level)) {
-                    let fireX = this.x + Math.cos(Math.atan2(player.y-this.y, player.x-this.x))*15;
-                    let fireY = this.y + Math.sin(Math.atan2(player.y-this.y, player.x-this.x))*15;
+                    let aimAng = Math.atan2(player.y-this.y, player.x-this.x);
+                    this.facingLeft = Math.cos(aimAng) < 0;
+                    let fireX = this.x + Math.cos(aimAng)*15;
+                    let fireY = this.y + Math.sin(aimAng)*15;
                     this.weapon.fire(fireX, fireY, player.x, player.y, game, game.time, true);
                 }
                 else if (this.eType === 'summoner' && this.actionTimer <= 0 && dist < 600) {
@@ -1104,6 +1400,9 @@ class Enemy {
         }
         if(count > 0) { dx += (sepX/count)*1.5; dy += (sepY/count)*1.5; let len = Math.hypot(dx,dy); dx/=len; dy/=len; }
 
+        this.isMoving = dx !== 0 || dy !== 0;
+        if(this.isMoving) this.facingLeft = dx < 0;
+
         let nx = this.x + dx * this.speed * dt, ny = this.y + dy * this.speed * dt;
         if (!level.checkCollision(nx, this.y, this.radius)) this.x = nx;
         if (!level.checkCollision(this.x, ny, this.radius)) this.y = ny;
@@ -1121,6 +1420,9 @@ class Enemy {
         game.showDmgText(this.x, this.y, dmg, '#fff');
         if (this.hp <= 0) {
             this.active = false; audioSys.sfxEnemyDeath();
+            
+            game.corpses.push({ type: this.type, x: this.x, y: this.y, facingLeft: this.facingLeft, phase2: this.phase2 });
+
             if (game.mode === 'STORY' && fromPlayer && !this.summoned) {
                 if (this.type === 'boss') {
                     game.score += 500;
@@ -1135,16 +1437,23 @@ class Enemy {
             if (Math.random() < 0.05) game.items.push(new Item('heal', this.x, this.y));
         }
     }
-    draw(ctx) {
+    draw(ctx, time) {
         ctx.save();
         ctx.translate(this.x, this.y);
-        let rot = this.aggro ? Math.atan2(window.gameInstance.player.y - this.y, window.gameInstance.player.x - this.x) : this.wanderAngle;
-        ctx.rotate(rot);
+        ctx.scale(this.facingLeft ? -1 : 1, 1);
         
         if (this.flashTimer > 0) ctx.globalAlpha = 0.5;
         
+        let spriteName = 'enemy_' + this.type;
+        if(this.type === 'boss' && this.phase2) spriteName = 'enemy_boss_angry';
+        
         let sc = this.type === 'boss' ? this.radius*3 : this.radius*2.5;
-        if(window.renderedSprites.enemy_basic) ctx.drawImage(window.renderedSprites.enemy_basic, -sc/2, -sc/2, sc, sc);
+        
+        if (this.isMoving) {
+            ctx.translate(0, -Math.abs(Math.sin(time / 100)) * 4);
+        }
+
+        if(window.renderedSprites[spriteName]) ctx.drawImage(window.renderedSprites[spriteName], -sc/2, -sc/2, sc, sc);
         
         ctx.restore();
 
@@ -1341,6 +1650,7 @@ class Game {
     resetGameData() {
         this.player = null; this.level = null; this.bullets = []; this.enemies = []; this.props = [];
         this.items = []; this.particles = []; this.explosions = []; this.customParticles = []; this.dmgTexts = []; this.portal = null;
+        this.corpses = [];
         this.levelIndex = 0; this.score = 0; this.runCoins = 0; this.targetLevels = randInt(5, 11);
         this.wave = 1; this.waveTimer = 0; this.bossSpawned = false; this.flowTimer = 0;
         
@@ -1476,6 +1786,7 @@ class Game {
     loadLevel() {
         this.bullets.forEach(b => this.pools.bullet.release(b)); this.particles.forEach(p => this.pools.particle.release(p));
         this.bullets = []; this.enemies = []; this.props = []; this.items = []; this.explosions = []; this.portal = null;
+        this.corpses = [];
         this.level = new Level(this.levelIndex, false);
         const spawn = this.level.getSpawnPoint(); this.player.x = spawn.x; this.player.y = spawn.y;
         
@@ -1721,9 +2032,25 @@ class Game {
 
         if (this.level) this.level.draw(this.ctx, this.camera);
         if (this.portal) this.portal.draw(this.ctx, 1/60);
+        
+        this.corpses.forEach(c => {
+            let spriteName = 'enemy_' + c.type + '_dead';
+            if(c.type === 'boss') spriteName = 'enemy_boss_dead';
+            let sprite = window.renderedSprites[spriteName];
+            if (sprite) {
+                this.ctx.save();
+                this.ctx.translate(c.x, c.y);
+                this.ctx.scale(c.facingLeft ? -1 : 1, 1);
+                let rad = ENEMY_CONFIGS[c.type].radius;
+                let sc = c.type === 'boss' ? rad*3 : rad*2.5;
+                this.ctx.drawImage(sprite, -sc/2, -sc/2, sc, sc);
+                this.ctx.restore();
+            }
+        });
+
         this.props.forEach(p => p.draw(this.ctx));
         this.items.forEach(p => p.draw(this.ctx, this.time));
-        this.enemies.forEach(e => e.draw(this.ctx));
+        this.enemies.forEach(e => e.draw(this.ctx, this.time));
         this.bullets.forEach(b => b.draw(this.ctx));
         this.explosions.forEach(e => e.draw(this.ctx));
         this.particles.forEach(p => p.draw(this.ctx));
@@ -1735,7 +2062,7 @@ class Game {
             }
         });
 
-        this.player.draw(this.ctx);
+        this.player.draw(this.ctx, this.time);
         this.dmgTexts.forEach(t => t.draw(this.ctx));
 
         this.ctx.restore();
