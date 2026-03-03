@@ -108,6 +108,7 @@
         #mobilePause:active { transform: translateY(4px); }
         #mobileReload { bottom: 45%; right: 28%; background: #00aa55; }
         #mobileDash { bottom: 20%; right: 42%; background: #0055aa; }
+        #mobileInteract { bottom: 50%; right: 10%; background: #ffaa00; display: none; }
 
         #dpad { position: absolute; left: 10%; top: 40%; transform: translateY(-50%); width: 120px; height: 120px; }
         .dpad-btn { position: absolute; background: #333; color: #fff; border: 2px solid #111; width: 40px; height: 40px; font-size: 18px; display: flex; justify-content: center; align-items: center; box-shadow: 2px 2px 0 #111; padding:0; margin:0; border-radius: 4px; }
@@ -166,7 +167,14 @@
                 <div id="storeScreen" class="screen">
                     <h2>ARMERÍA</h2><p>Créditos: <span id="storeCoins" style="color:var(--gold-color)"></span></p>
                     <div class="store-grid" id="storeContainer"></div>
+                    <button id="btnPCStoreAction" style="margin-top:20px; display:none;" class="danger">COMPRAR / EQUIPAR</button>
                     <button id="btnBackToMenuPC" style="margin-top: 20px; display: none;">Volver al Menú</button>
+                </div>
+                <div id="stashScreen" class="screen">
+                    <h2>BAÚL DE ARMAS</h2><p>Selecciona un arma para equipar:</p>
+                    <div class="store-grid" id="stashContainer"></div>
+                    <button id="btnStashEquip" style="margin-top:20px;" class="danger">EQUIPAR</button>
+                    <button id="btnStashClose" style="margin-top: 20px;">Cerrar</button>
                 </div>
                 <div id="mutationScreen" class="screen">
                     <h2>MUTACIÓN</h2><p>Selecciona mejora:</p>
@@ -201,6 +209,7 @@
                 <button id="mobileShoot" class="gb-btn round lg">X</button>
                 <button id="mobileReload" class="gb-btn round md">R</button>
                 <button id="mobileDash" class="gb-btn round md">D</button>
+                <button id="mobileInteract" class="gb-btn round md">E</button>
             </div>
             <div id="storeControls">
                 <div id="dpad">
@@ -603,6 +612,24 @@ const SPRITE_DATA = {
         " 04400044000440 ",
         " 04444444444440 ",
         "  000000000000  ",
+        "                ",
+        "                "
+    ],
+    stash: [
+        "                ",
+        "  000000000000  ",
+        " 08888888888880 ",
+        " 08888888888880 ",
+        " 08888888888880 ",
+        " 08888000088880 ",
+        " 08880222208880 ",
+        " 08880222208880 ",
+        " 08888000088880 ",
+        " 08888888888880 ",
+        " 08888888888880 ",
+        " 08888888888880 ",
+        "  000000000000  ",
+        "                ",
         "                ",
         "                "
     ],
@@ -1062,7 +1089,7 @@ class Level {
     constructor(levelIndex, mode, isTutorial = false) {
         this.index = levelIndex;
         if(isTutorial) {
-            this.cols = 15; this.rows = 15;
+            this.cols = 20; this.rows = 20;
         } else {
             this.cols = mode === 'SURVIVAL' ? 40 : 30 + levelIndex * 3; 
             this.rows = mode === 'SURVIVAL' ? 40 : 30 + levelIndex * 3;
@@ -1204,7 +1231,7 @@ class Prop {
         }
     }
     takeDamage(amt, game) {
-        if(this.type === 'trap') return;
+        if(this.type === 'trap' || this.type === 'stash') return;
         this.hp -= amt;
         if(this.hp <= 0) {
             this.active = false;
@@ -1232,6 +1259,10 @@ class Prop {
                 ctx.drawImage(window.renderedSprites.trap, this.x - this.radius*1.2, this.y - this.radius*1.2, this.radius*2.4, this.radius*2.4);
             }
             if(this.state === 1) { ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.arc(this.x, this.y, 8, 0, Math.PI*2); ctx.fill(); }
+        } else if(this.type === 'stash') {
+            if(window.renderedSprites.stash) {
+                ctx.drawImage(window.renderedSprites.stash, this.x - this.radius*1.5, this.y - this.radius*1.5, this.radius*3, this.radius*3);
+            }
         }
     }
 }
@@ -1277,6 +1308,7 @@ class Weapon {
         audioSys.sfxShoot();
         if(!isEnemy) {
             this.ammo--; game.triggerScreenShake(this.config.type === 'shotgun' || this.config.type === 'grenade' || chargeMult > 1.5 ? 6 : 2);
+            if(game.mode === 'TUTORIAL') game.tutorialFired = true;
             if(this.ammo <= 0) this.startReload();
         }
         return true;
@@ -1292,16 +1324,20 @@ class Weapon {
         if(progress > 0.5 && progress < 0.65) {
             this.ammo = this.config.magSize; this.reloading = false; this.perfectReload = true;
             audioSys.sfxReloadPerfect(); game.showDmgText(game.player.x, game.player.y-20, "PERFECT!", '#0f0');
+            game.spawnParticles(game.player.x, game.player.y, '#0f0', 15);
         } else {
             this.reloadTimer = -0.5;
             audioSys.sfxReloadFail(); game.showDmgText(game.player.x, game.player.y-20, "JAMMED", '#f00');
+            game.spawnParticles(game.player.x, game.player.y, '#f00', 10);
         }
     }
-    update(dt) {
+    update(dt, game) {
         if(this.reloading) {
             this.reloadTimer += dt;
             if(this.reloadTimer >= this.config.reloadTime) {
                 this.ammo = this.config.magSize; this.reloading = false; this.perfectReload = false;
+                game.spawnParticles(game.player.x, game.player.y, '#aaa', 10);
+                if(game.mode === 'TUTORIAL') game.tutorialReloaded = true;
             }
         }
     }
@@ -1369,7 +1405,7 @@ class Bullet {
     }
     checkPropCollision(x, y, game) {
         for(let p of game.props) {
-            if(p.active && p.type !== 'trap' && distance(x, y, p.x, p.y) < this.radius + p.radius) {
+            if(p.active && p.type !== 'trap' && p.type !== 'stash' && distance(x, y, p.x, p.y) < this.radius + p.radius) {
                 p.takeDamage(this.damage, game); return true;
             }
         }
@@ -1404,7 +1440,7 @@ class Explosion {
             }
         });
         game.props.forEach(p => {
-            if (p.active && !this.hitTargets.has(p) && distance(this.x, this.y, p.x, p.y) < curRad + p.radius) {
+            if (p.active && !this.hitTargets.has(p) && p.type !== 'stash' && distance(this.x, this.y, p.x, p.y) < curRad + p.radius) {
                 p.takeDamage(this.damage, game); this.hitTargets.add(p);
             }
         });
@@ -1440,13 +1476,18 @@ class Player {
         
         if (game.input.keys['ShiftLeft'] && this.dashCooldownTimer <= 0 && !this.isDashing) {
             this.isDashing = true; this.dashTimer = 0.2; this.dashCooldownTimer = this.dashCooldown; this.invulnerableTimer = 0.2;
+            game.spawnParticles(this.x, this.y, '#0055aa', 20);
+            if(game.mode === 'TUTORIAL') game.tutorialDashed = true;
         }
 
         let dx = 0, dy = 0;
         if (game.input.keys['KeyW']) dy -= 1; if (game.input.keys['KeyS']) dy += 1;
         if (game.input.keys['KeyA']) dx -= 1; if (game.input.keys['KeyD']) dx += 1;
         this.isMoving = dx !== 0 || dy !== 0;
-        if (this.isMoving) { const len = Math.hypot(dx, dy); dx /= len; dy /= len; }
+        if (this.isMoving) { 
+            const len = Math.hypot(dx, dy); dx /= len; dy /= len; 
+            if(game.mode === 'TUTORIAL') game.tutorialMoved = true;
+        }
 
         const curSpeed = this.isDashing ? this.baseSpeed * 3 : this.baseSpeed;
         let nx = this.x + dx * curSpeed * dt, ny = this.y + dy * curSpeed * dt;
@@ -1468,7 +1509,7 @@ class Player {
             this.angle = Math.atan2(targetY - this.y, targetX - this.x);
         }
 
-        this.weapon.update(dt);
+        this.weapon.update(dt, game);
         if (game.input.keys['KeyR'] && !game.prevKeys['KeyR']) this.weapon.attemptActiveReload(game);
         else if (game.input.keys['KeyR'] && !this.weapon.reloading && this.weapon.ammo < this.weapon.config.magSize) this.weapon.startReload();
 
@@ -1819,11 +1860,14 @@ class Game {
             this.input.keys[e.code] = true; 
             if(e.code === 'Escape' || e.code === 'KeyP') {
                 if(this.state === 'STORE') document.getElementById('btnBackToMenuPC').click();
+                else if(this.state === 'STASH') document.getElementById('btnStashClose').click();
                 else this.togglePause(); 
+            }
+            if(e.code === 'KeyE') {
+                if (this.state === 'PLAYING' && this.nearStash) this.openStash();
             }
             if(e.code === 'KeyM') this.toggleSound();
             if(e.code === 'Enter' && this.state === 'LOGIN') document.getElementById('btnLogin').click();
-            if(e.code === 'Enter' && this.state === 'STORE' && !isMobileMode) this.buySelectedStoreItem();
             
             if(this.state === 'MENU') {
                 if(e.code === 'Digit1' || e.code === 'Numpad1') document.getElementById('btnStory').click();
@@ -1857,8 +1901,18 @@ class Game {
         this.camera = { x: 0, y: 0 }; this.shakeTime = 0; this.shakeMagnitude = 0; this.flowTimer = 0;
         this.lastFlowX = null; this.lastFlowY = null;
         this.storeSelectedIndex = 0;
+        this.pcSelectedWeaponId = null;
         this.introTimer = 0;
+        this.nearStash = false;
         
+        this.tutorialStep = 0;
+        this.tutorialMoved = false;
+        this.tutorialFired = false;
+        this.tutorialReloaded = false;
+        this.tutorialDashed = false;
+        this.tutorialItemPicked = false;
+        this.tutorialCombatStarted = false;
+
         this.resetGameData(); this.setupDOM(); loadDB();
     }
 
@@ -1879,6 +1933,9 @@ class Game {
         
         const pauseBtn = document.getElementById('mobilePause');
         pauseBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); this.togglePause(); }, {passive: false});
+
+        const intBtn = document.getElementById('mobileInteract');
+        intBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); if(this.nearStash) this.openStash(); }, {passive: false});
 
         const base = document.getElementById('joystickBase');
         const stick = document.getElementById('joystickStick');
@@ -1953,8 +2010,11 @@ class Game {
         document.getElementById('btnDown').onclick = () => this.moveStoreSelection(2);
         document.getElementById('btnLeft').onclick = () => this.moveStoreSelection(-1);
         document.getElementById('btnRight').onclick = () => this.moveStoreSelection(1);
-        document.getElementById('btnStoreBuy').onclick = () => this.buySelectedStoreItem();
-        document.getElementById('btnStoreBack').onclick = () => { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; };
+        document.getElementById('btnStoreBuy').onclick = () => { if(isMobileMode) this.buySelectedStoreItem(); };
+        document.getElementById('btnStoreBack').onclick = () => { 
+            if(this.state === 'STORE') { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; }
+            if(this.state === 'STASH') { this.setUIState(null); this.state = 'PLAYING'; }
+        };
     }
 
     resetGameData() {
@@ -1966,6 +2026,14 @@ class Game {
         
         this.nextMutationLevel = this.levelIndex + randInt(2, 5);
         this.mutationShownForWave = {};
+
+        this.tutorialStep = 0;
+        this.tutorialMoved = false;
+        this.tutorialFired = false;
+        this.tutorialReloaded = false;
+        this.tutorialDashed = false;
+        this.tutorialItemPicked = false;
+        this.tutorialCombatStarted = false;
     }
 
     setupDOM() {
@@ -1983,7 +2051,7 @@ class Game {
                 if (isNewUser || !db.users[currentUser].tutorialDone) {
                     this.setUIState(null);
                     this.state = 'INTRO';
-                    this.introTimer = 4.0;
+                    this.introTimer = 7.0;
                 } else {
                     this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU';
                     audioSys.init(); audioSys.startBGM('menu');
@@ -1996,11 +2064,26 @@ class Game {
         
         document.getElementById('btnStore').onclick = () => { 
             this.storeSelectedIndex = 0; 
-            if(!isMobileMode) document.getElementById('btnBackToMenuPC').style.display = 'inline-block';
+            if(!isMobileMode) {
+                document.getElementById('btnBackToMenuPC').style.display = 'inline-block';
+                document.getElementById('btnPCStoreAction').style.display = 'inline-block';
+            }
+            this.pcSelectedWeaponId = null;
             this.renderStore(); this.setUIState('storeScreen'); this.state = 'STORE'; 
+        };
+        document.getElementById('btnPCStoreAction').onclick = () => {
+            if(this.pcSelectedWeaponId) this.buySelectedStoreItem(this.pcSelectedWeaponId);
         };
         document.getElementById('btnBackToMenuPC').onclick = () => { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; };
         
+        document.getElementById('btnStashClose').onclick = () => { this.setUIState(null); this.state = 'PLAYING'; };
+        document.getElementById('btnStashEquip').onclick = () => {
+            if (this.pcSelectedWeaponId && this.player) {
+                this.player.weapon = new Weapon(WEAPONS[this.pcSelectedWeaponId]);
+                this.setUIState(null); this.state = 'PLAYING';
+            }
+        };
+
         document.getElementById('btnSound').onclick = () => this.toggleSound();
         document.getElementById('btnPauseSound').onclick = () => this.toggleSound();
         document.getElementById('btnResume').onclick = () => this.togglePause();
@@ -2025,7 +2108,7 @@ class Game {
             document.getElementById('storeControls').style.display = 'none';
             document.getElementById('gameplayControls').style.display = 'none';
             
-            if (screenId === 'storeScreen') {
+            if (screenId === 'storeScreen' || screenId === 'stashScreen') {
                 document.getElementById('storeControls').style.display = 'block';
             } else if (!screenId) {
                 document.getElementById('gameplayControls').style.display = 'block';
@@ -2035,11 +2118,13 @@ class Game {
 
     moveStoreSelection(dir) {
         if(!isMobileMode) return;
-        const keys = Object.keys(WEAPONS);
+        const u = db.users[currentUser];
+        const keys = this.state === 'STASH' ? u.unlocks : Object.keys(WEAPONS);
         this.storeSelectedIndex += dir;
         if (this.storeSelectedIndex < 0) this.storeSelectedIndex = 0;
         if (this.storeSelectedIndex >= keys.length) this.storeSelectedIndex = keys.length - 1;
-        this.renderStore();
+        if (this.state === 'STASH') this.renderStash();
+        else this.renderStore();
         
         const cards = document.querySelectorAll('.weapon-card');
         if(cards[this.storeSelectedIndex]) cards[this.storeSelectedIndex].scrollIntoView({block: 'nearest', behavior: 'smooth'});
@@ -2069,13 +2154,16 @@ class Game {
         keys.forEach((k, index) => {
             const w = WEAPONS[k];
             const isUnlocked = u.unlocks.includes(w.id), isSelected = u.selectedWeapon === w.id;
-            const isHighlighted = isMobileMode && index === this.storeSelectedIndex;
+            let isHighlighted = false;
+            
+            if (isMobileMode) isHighlighted = index === this.storeSelectedIndex;
+            else isHighlighted = k === this.pcSelectedWeaponId;
             
             const div = document.createElement('div'); 
             div.className = `weapon-card ${isUnlocked ? 'unlocked' : ''} ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}`;
             
             if (!isMobileMode) {
-                div.onclick = () => this.buySelectedStoreItem(k);
+                div.onclick = () => { this.pcSelectedWeaponId = k; this.renderStore(); };
             }
 
             let spriteDataUrl = window.renderedSprites[w.id] ? window.renderedSprites[w.id].toDataURL() : '';
@@ -2091,6 +2179,73 @@ class Game {
             div.innerHTML = html;
             cont.appendChild(div);
         });
+
+        if (!isMobileMode) {
+            let btn = document.getElementById('btnPCStoreAction');
+            if(this.pcSelectedWeaponId) {
+                let w = WEAPONS[this.pcSelectedWeaponId];
+                if(u.unlocks.includes(w.id)) btn.innerText = "EQUIPAR";
+                else btn.innerText = `COMPRAR (${w.cost} Cr)`;
+                btn.style.display = 'inline-block';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+    }
+
+    openStash() {
+        this.storeSelectedIndex = 0;
+        this.pcSelectedWeaponId = null;
+        this.renderStash();
+        this.setUIState('stashScreen');
+        this.state = 'STASH';
+    }
+
+    renderStash() {
+        const u = db.users[currentUser]; 
+        const cont = document.getElementById('stashContainer'); cont.innerHTML = '';
+        const keys = u.unlocks;
+        
+        keys.forEach((k, index) => {
+            const w = WEAPONS[k];
+            let isHighlighted = false;
+            if (isMobileMode) isHighlighted = index === this.storeSelectedIndex;
+            else isHighlighted = k === this.pcSelectedWeaponId;
+
+            const isSelected = this.player.weapon.config.id === w.id;
+            
+            const div = document.createElement('div'); 
+            div.className = `weapon-card unlocked ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}`;
+            
+            if (!isMobileMode) {
+                div.onclick = () => { this.pcSelectedWeaponId = k; this.renderStash(); };
+            }
+
+            let spriteDataUrl = window.renderedSprites[w.id] ? window.renderedSprites[w.id].toDataURL() : '';
+            let imgHtml = spriteDataUrl ? `<img src="${spriteDataUrl}" class="weapon-sprite-ui">` : '';
+
+            let html = `<h4><span>${w.name}</span> ${imgHtml}</h4><p>Daño: ${w.damage} | Mun: ${w.magSize}</p>`;
+            if (isMobileMode && isHighlighted) {
+                html += `<span class="buy-btn-hint">PRESIONA BUY PARA EQUIPAR</span>`;
+            }
+            div.innerHTML = html;
+            cont.appendChild(div);
+        });
+
+        if (isMobileMode) {
+            document.getElementById('btnStoreBuy').onclick = () => {
+                let wId = keys[this.storeSelectedIndex];
+                if (wId && this.player) {
+                    this.player.weapon = new Weapon(WEAPONS[wId]);
+                    this.setUIState(null); this.state = 'PLAYING';
+                    document.getElementById('btnStoreBuy').onclick = () => this.buySelectedStoreItem(); 
+                }
+            };
+        } else {
+            let btn = document.getElementById('btnStashEquip');
+            if(this.pcSelectedWeaponId) btn.style.display = 'inline-block';
+            else btn.style.display = 'none';
+        }
     }
 
     startRun(mode) {
@@ -2098,7 +2253,12 @@ class Game {
         const u = db.users[currentUser]; this.player = new Player(0, 0, WEAPONS[u.selectedWeapon]);
         this.setUIState(null); this.state = 'PLAYING'; audioSys.stopBGM();
         if(this.mode === 'STORY') this.loadLevel();
-        else { this.level = new Level(0, 'SURVIVAL'); this.player.x = this.level.getSpawnPoint().x; this.player.y = this.level.getSpawnPoint().y; }
+        else { 
+            this.level = new Level(0, 'SURVIVAL'); 
+            const sp = this.level.getSpawnPoint();
+            this.player.x = sp.x; this.player.y = sp.y; 
+            this.props.push(new Prop('stash', sp.x, sp.y - 100));
+        }
     }
 
     startTutorial() {
@@ -2107,13 +2267,6 @@ class Game {
         this.setUIState(null); this.state = 'PLAYING';
         this.level = new Level(0, 'STORY', true);
         const spawn = this.level.getSpawnPoint(); this.player.x = spawn.x; this.player.y = spawn.y;
-        
-        for(let i=0; i<3; i++) {
-            let p = this.level.getRandomFloorPoint();
-            let e = new Enemy('basic', p.x, p.y, 1);
-            e.hp = 1; e.maxHp = 1; e.damage = 1; e.speed = 30;
-            this.enemies.push(e);
-        }
     }
 
     isPointOnProp(x, y, radius) {
@@ -2130,6 +2283,8 @@ class Game {
         this.level = new Level(this.levelIndex, 'STORY');
         const spawn = this.level.getSpawnPoint(); this.player.x = spawn.x; this.player.y = spawn.y;
         
+        this.props.push(new Prop('stash', spawn.x, spawn.y - 100));
+
         const numProps = randInt(20, 40);
         for(let i=0; i<numProps; i++) {
             let p = this.level.getRandomFloorPoint(); while (distance(p.x, p.y, this.player.x, this.player.y) < 200) p = this.level.getRandomFloorPoint();
@@ -2280,6 +2435,38 @@ class Game {
         saveDB(); audioSys.startBGM('menu');
     }
 
+    handleTutorialStep() {
+        if (this.tutorialStep === 0) {
+            if (this.tutorialMoved) this.tutorialStep = 1;
+        } else if (this.tutorialStep === 1) {
+            if (this.tutorialFired && this.tutorialReloaded) this.tutorialStep = 2;
+        } else if (this.tutorialStep === 2) {
+            if (this.tutorialDashed) {
+                this.tutorialStep = 3;
+                this.items.push(new Item('coin', this.player.x - 50, this.player.y));
+                this.items.push(new Item('heal', this.player.x + 50, this.player.y));
+                this.player.hp = 50; 
+            }
+        } else if (this.tutorialStep === 3) {
+            if (this.items.length === 0) {
+                this.tutorialStep = 4;
+            }
+        } else if (this.tutorialStep === 4) {
+            if (!this.tutorialCombatStarted) {
+                this.tutorialCombatStarted = true;
+                for(let i=0; i<3; i++) {
+                    let e = new Enemy('basic', this.player.x + randRange(-100, 100), this.player.y - 150 + randRange(-50,50), 1);
+                    e.hp = 10; e.maxHp = 10; e.damage = 2; e.speed = 40;
+                    this.enemies.push(e);
+                }
+            } else if (this.enemies.length === 0) {
+                this.tutorialStep = 5;
+            }
+        } else if (this.tutorialStep === 5) {
+            this.endRun(true);
+        }
+    }
+
     update(dt) {
         if (this.state === 'INTRO') {
             this.introTimer -= dt;
@@ -2292,16 +2479,35 @@ class Game {
         if (this.state !== 'PLAYING') return;
         this.time += dt * 1000; if (this.shakeTime > 0) this.shakeTime -= dt;
         
+        if (this.mode === 'TUTORIAL') this.handleTutorialStep();
+
         this.spatialGrid.clear(); this.enemies.forEach(e => { if(e.active) this.spatialGrid.add(e); });
 
         this.flowTimer -= dt; 
         if(this.flowTimer <= 0) { 
             let distMoved = distance(this.player.x, this.player.y, this.lastFlowX || 0, this.lastFlowY || 0);
             if (distMoved > 40 || !this.lastFlowX) {
-                this.level.buildFlowField(this.player.x, this.player.y); 
+                if(this.level) this.level.buildFlowField(this.player.x, this.player.y); 
                 this.lastFlowX = this.player.x; this.lastFlowY = this.player.y;
             }
             this.flowTimer = 0.25; 
+        }
+
+        this.nearStash = false;
+        let distToStash = 9999;
+        this.props.forEach(p => {
+            if (p.type === 'stash') {
+                let d = distance(this.player.x, this.player.y, p.x, p.y);
+                if (d < 60) {
+                    this.nearStash = true;
+                    distToStash = d;
+                }
+            }
+        });
+        if (isMobileMode) {
+            let intBtn = document.getElementById('mobileInteract');
+            if(this.nearStash) intBtn.style.display = 'flex';
+            else intBtn.style.display = 'none';
         }
 
         if(!this.player.active) {
@@ -2353,11 +2559,6 @@ class Game {
             let e = this.enemies[i]; e.update(dt, this, this.level);
             if (distance(e.x, e.y, this.player.x, this.player.y) < e.radius + this.player.radius) this.player.takeDamage(e.damage, this);
             if (!e.active) this.enemies.splice(i, 1); else activeEnemies++;
-        }
-
-        if (this.mode === 'TUTORIAL' && activeEnemies === 0) {
-            this.endRun(true);
-            return;
         }
 
         if (this.mode === 'STORY' && activeEnemies === 0) {
@@ -2424,10 +2625,10 @@ class Game {
             this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             
             let alpha = 1;
-            if (this.introTimer > 3) alpha = 4 - this.introTimer;
-            else if (this.introTimer < 1) alpha = this.introTimer;
+            if (this.introTimer > 5.5) alpha = 7 - this.introTimer;
+            else if (this.introTimer < 1.5) alpha = this.introTimer;
             
-            this.ctx.globalAlpha = alpha;
+            this.ctx.globalAlpha = Math.min(1, Math.max(0, alpha));
             this.ctx.textAlign = 'center';
             this.ctx.fillStyle = '#00ffcc';
             this.ctx.font = 'bold 60px Courier New';
@@ -2435,7 +2636,7 @@ class Game {
             
             this.ctx.fillStyle = '#fff';
             this.ctx.font = '20px Courier New';
-            this.ctx.fillText("maruyanx, nigrumdrac", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+            this.ctx.fillText("Creado por: maruyanx, nigrumdrac", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
             
             this.ctx.globalAlpha = 1.0;
             this.ctx.textAlign = 'left';
@@ -2471,7 +2672,16 @@ class Game {
             }
         });
 
-        this.props.forEach(p => p.draw(this.ctx));
+        this.props.forEach(p => {
+            p.draw(this.ctx);
+            if(p.type === 'stash' && this.nearStash && !isMobileMode) {
+                this.ctx.fillStyle = '#ffaa00';
+                this.ctx.font = 'bold 12px Courier New';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText("PRESIONE E", p.x, p.y - 30);
+                this.ctx.textAlign = 'left';
+            }
+        });
         this.items.forEach(p => p.draw(this.ctx, this.time));
         this.enemies.forEach(e => e.draw(this.ctx, this.time));
         this.bullets.forEach(b => b.draw(this.ctx));
@@ -2490,9 +2700,16 @@ class Game {
         if (this.mode === 'TUTORIAL') {
             this.ctx.textAlign = 'center';
             this.ctx.fillStyle = '#fff';
-            this.ctx.font = '20px Courier New';
-            let tutText = isMobileMode ? "Usa los joysticks para moverte y apuntar/disparar" : "WASD para moverte, Click para disparar";
-            this.ctx.fillText(tutText, this.player.x, this.player.y - 50);
+            this.ctx.font = 'bold 16px Courier New';
+            let tutText = "";
+            if (this.tutorialStep === 0) tutText = isMobileMode ? "Usa el joystick izquierdo para moverte" : "Usa W A S D para moverte";
+            else if (this.tutorialStep === 1) tutText = isMobileMode ? "Usa el botón X o joystick der. para disparar, R para recargar" : "Apunta y usa Click para disparar, R para recargar";
+            else if (this.tutorialStep === 2) tutText = isMobileMode ? "Usa el botón D para hacer Dash (esquivar)" : "Usa SHIFT para hacer Dash (esquivar y atravesar cosas)";
+            else if (this.tutorialStep === 3) tutText = "Recoge los ítems para recuperar HP o ganar créditos";
+            else if (this.tutorialStep === 4) tutText = "¡Elimina a todos los objetivos!";
+            else if (this.tutorialStep === 5) tutText = "¡Tutorial completado!";
+            
+            this.ctx.fillText(tutText, this.player.x, this.player.y - 40);
             this.ctx.textAlign = 'left';
         }
 
@@ -2526,6 +2743,7 @@ class Game {
         ctx.textAlign = 'right'; ctx.font = '24px Courier New';
         if(this.mode === 'STORY') { ctx.fillStyle = '#00ffcc'; ctx.fillText(`Nv: ${this.levelIndex + 1}/${this.targetLevels}`, CANVAS_WIDTH - 20, 40); ctx.fillStyle = '#fff'; ctx.fillText(`Pts: ${this.score}`, CANVAS_WIDTH - 20, 70); } 
         else if(this.mode === 'SURVIVAL') { ctx.fillStyle = '#ff0055'; ctx.fillText(`Oleada: ${this.wave - 1}`, CANVAS_WIDTH - 20, 40); if(this.enemies.length === 0 && this.waveTimer > 0) { ctx.fillStyle = '#fff'; ctx.fillText(`Sig: ${Math.ceil(this.waveTimer)}s`, CANVAS_WIDTH - 20, 70); } }
+        else if(this.mode === 'TUTORIAL') { ctx.fillStyle = '#00ffcc'; ctx.fillText(`TUTORIAL`, CANVAS_WIDTH - 20, 40); }
         ctx.textAlign = 'left';
     }
 
