@@ -110,24 +110,24 @@
         .md { width: 45px; height: 45px; font-size: 18px; }
         .sm { width: 45px; height: 18px; font-size: 10px; border-radius: 10px; background: #444; color: #aaa; border: 2px solid #222; }
 
-        #joystickBase { position: absolute; left: 5%; top: 50%; transform: translateY(-50%); width: 130px; height: 130px; background: rgba(0,0,0,0.1); border: 3px solid #777; border-radius: 50%; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
-        #joystickStick { position: absolute; width: 50px; height: 50px; background: #333; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); box-shadow: 2px 4px 0 #111; }
+        #joystickBase { position: absolute; left: 5%; top: 35%; transform: translateY(-50%); width: 140px; height: 140px; background: rgba(0,0,0,0.1); border: 3px solid #777; border-radius: 50%; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+        #joystickStick { position: absolute; width: 60px; height: 60px; background: #333; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); box-shadow: 2px 4px 0 #111; }
         
-        #mobileShoot { bottom: 20%; right: 10%; background: #aa0033; }
-        #mobilePause { bottom: 50%; right: 5%; transform: rotate(-20deg); }
-        #mobilePause:active { transform: rotate(-20deg) translateY(4px); }
-        #mobileReload { bottom: 35%; right: 28%; background: #00aa55; }
-        #mobileDash { bottom: 15%; right: 42%; background: #0055aa; }
+        #mobileShoot { bottom: 25%; right: 10%; background: #aa0033; }
+        #mobilePause { top: 10px; right: 10px; border-radius: 5px; width: 60px; height: 30px; font-size: 12px; }
+        #mobilePause:active { transform: translateY(4px); }
+        #mobileReload { bottom: 45%; right: 28%; background: #00aa55; }
+        #mobileDash { bottom: 20%; right: 42%; background: #0055aa; }
 
-        #dpad { position: absolute; left: 10%; top: 50%; transform: translateY(-50%); width: 120px; height: 120px; }
+        #dpad { position: absolute; left: 10%; top: 40%; transform: translateY(-50%); width: 120px; height: 120px; }
         .dpad-btn { position: absolute; background: #333; color: #fff; border: 2px solid #111; width: 40px; height: 40px; font-size: 18px; display: flex; justify-content: center; align-items: center; box-shadow: 2px 2px 0 #111; padding:0; margin:0; border-radius: 4px; }
         .dpad-btn:active { transform: translate(2px, 2px); box-shadow: none; }
         #btnUp { left: 40px; top: 0; }
         #btnDown { left: 40px; bottom: 0; }
         #btnLeft { left: 0; top: 40px; }
         #btnRight { right: 0; top: 40px; }
-        #btnStoreBuy { bottom: 25%; right: 10%; background: #aa0033; }
-        #btnStoreBack { bottom: 15%; right: 35%; background: #444; }
+        #btnStoreBuy { bottom: 35%; right: 10%; background: #aa0033; }
+        #btnStoreBack { bottom: 25%; right: 35%; background: #444; }
 
         #leaderboardPanel, #leaderboardPanelMobile { background: #111; border: 2px solid var(--accent-color); padding: 20px; box-sizing: border-box; overflow-y: auto; text-align: center; }
         h2 { color: var(--accent-color); font-size: 1.2em; margin-top: 0; }
@@ -138,9 +138,9 @@
         body.pc-mode #leaderboardPanelMobile { display: none; }
         
         body.mobile-mode #leaderboardPanel { display: none; }
-        body.mobile-mode #leaderboardPanelMobile { flex: 0 0 140px; border-radius: 0; border-width: 3px 0 0 0; padding: 5px 15px; }
+        body.mobile-mode #leaderboardPanelMobile { flex: 0 0 160px; border-radius: 0; border-width: 3px 0 0 0; padding: 5px 15px; }
         body.mobile-mode #leaderboardPanelMobile h2 { font-size: 1em; margin: 2px 0; }
-        body.mobile-mode .lb-entry { padding: 2px 0; font-size: 0.8em; }
+        body.mobile-mode .lb-entry { padding: 4px 0; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -154,7 +154,6 @@
                     <input type="text" id="usernameInput" placeholder="Usuario" maxlength="12"><br>
                     <input type="password" id="passwordInput" placeholder="Contraseña"><br>
                     <button id="btnLogin">Acceder</button>
-                    <p style="font-size: 0.8em; color: #888; margin-top: 15px;">Atajo: Presiona [ENTER]</p>
                 </div>
                 <div id="menuScreen" class="screen">
                     <h1>NEON ARMOR</h1>
@@ -165,17 +164,17 @@
                         <div>Cr: <span id="uiCoins" style="color:var(--gold-color)"></span></div>
                     </div>
                     <div class="menu-grid">
-                        <button id="btnStory">HISTORIA [1]</button>
-                        <button id="btnSurvival" class="danger">SUPERVIVENCIA [2]</button>
-                        <button id="btnStore">ARMERÍA [3 o B]</button>
-                        <button id="btnSound">Sonido: <span id="soundStatus">ON</span> [M]</button>
+                        <button id="btnStory">HISTORIA</button>
+                        <button id="btnSurvival" class="danger">SUPERVIVENCIA</button>
+                        <button id="btnStore">ARMERÍA</button>
+                        <button id="btnSound">Sonido: <span id="soundStatus">ON</span></button>
                     </div>
                     <button id="btnLogout" style="background:#444; color:#fff;">Cerrar Sesión</button>
                 </div>
                 <div id="storeScreen" class="screen">
                     <h2>ARMERÍA</h2><p>Créditos: <span id="storeCoins" style="color:var(--gold-color)"></span></p>
                     <div class="store-grid" id="storeContainer"></div>
-                    <button id="btnBackToMenuPC" style="margin-top: 20px; display: none;">Volver al Menú [ESC]</button>
+                    <button id="btnBackToMenuPC" style="margin-top: 20px; display: none;">Volver al Menú</button>
                 </div>
                 <div id="mutationScreen" class="screen">
                     <h2>MUTACIÓN</h2><p>Selecciona mejora:</p>
@@ -183,19 +182,19 @@
                 </div>
                 <div id="pauseScreen" class="screen">
                     <h2>PAUSADO</h2>
-                    <button id="btnResume">Continuar [ESC]</button>
-                    <button id="btnPauseSound">Sonido: <span id="pauseSoundStatus">ON</span> [M]</button>
+                    <button id="btnResume">Continuar</button>
+                    <button id="btnPauseSound">Sonido: <span id="pauseSoundStatus">ON</span></button>
                     <button id="btnQuit" class="danger">Abandonar</button>
                 </div>
                 <div id="gameOverScreen" class="screen">
                     <h2>FIN DE TRANSMISIÓN</h2><p id="goContext"></p>
                     <p>Puntuación: <span id="goScore"></span></p><p>Créditos: <span id="goCoins" style="color:var(--gold-color)"></span></p>
-                    <button id="btnReturnDead">Volver [ENTER]</button>
+                    <button id="btnReturnDead">Volver</button>
                 </div>
                 <div id="victoryScreen" class="screen">
                     <h2 style="color: var(--gold-color)">¡TRONO ALCANZADO!</h2>
                     <p>Puntuación final: <span id="vicScore"></span></p><p>Créditos: <span id="vicCoins" style="color:var(--gold-color)"></span></p>
-                    <button id="btnReturnWin">Volver [ENTER]</button>
+                    <button id="btnReturnWin">Volver</button>
                 </div>
             </div>
         </div>
@@ -1064,36 +1063,10 @@ class Game {
         
         window.addEventListener('keydown', e => { 
             this.input.keys[e.code] = true; 
-            
-            if (e.code === 'Escape') {
-                if (this.state === 'PLAYING' || this.state === 'PAUSED') this.togglePause();
-                else if (this.state === 'STORE') { this.updateMenuUI(); this.setUIState('menuScreen'); this.state = 'MENU'; }
-            }
-            if (e.code === 'Enter') {
-                if (this.state === 'LOGIN') document.getElementById('btnLogin').click();
-                else if (this.state === 'STORE') this.buySelectedStoreItem();
-                else if (this.state === 'GAMEOVER') document.getElementById('btnReturnDead').click();
-                else if (this.state === 'VICTORY') document.getElementById('btnReturnWin').click();
-            }
-            if (e.code === 'KeyM') {
-                this.toggleSound();
-            }
-            if (e.code === 'KeyB' || e.code === 'KeyI') {
-                if (this.state === 'MENU') document.getElementById('btnStore').click();
-                else if (this.state === 'STORE') document.getElementById('btnBackToMenuPC').click();
-            }
-            if (this.state === 'STORE') {
-                const cols = isMobileMode ? 2 : 3;
-                if(e.code === 'ArrowRight' || e.code === 'KeyD') this.moveStoreSelection(1);
-                if(e.code === 'ArrowLeft' || e.code === 'KeyA') this.moveStoreSelection(-1);
-                if(e.code === 'ArrowDown' || e.code === 'KeyS') this.moveStoreSelection(cols);
-                if(e.code === 'ArrowUp' || e.code === 'KeyW') this.moveStoreSelection(-cols);
-            }
-            if (this.state === 'MENU') {
-                if(e.code === 'Digit1') document.getElementById('btnStory').click();
-                if(e.code === 'Digit2') document.getElementById('btnSurvival').click();
-                if(e.code === 'Digit3') document.getElementById('btnStore').click();
-            }
+            if(e.code === 'Escape' || e.code === 'KeyP') this.togglePause(); 
+            if(e.code === 'KeyM') this.toggleSound();
+            if(e.code === 'Enter' && this.state === 'LOGIN') document.getElementById('btnLogin').click();
+            if(e.code === 'Enter' && this.state === 'STORE' && !isMobileMode) this.buySelectedStoreItem();
         });
         window.addEventListener('keyup', e => { this.input.keys[e.code] = false; });
         
@@ -1146,7 +1119,9 @@ class Game {
         const base = document.getElementById('joystickBase');
         const stick = document.getElementById('joystickStick');
         let joyActive = false;
+        let joyTouchId = null;
         let baseRect = null;
+        let lastTap = 0;
 
         const moveJoy = (clientX, clientY) => {
             if (!joyActive || !baseRect) return;
@@ -1169,23 +1144,46 @@ class Game {
 
         base.addEventListener('touchstart', e => { 
             e.preventDefault(); 
-            joyActive = true;
-            baseRect = base.getBoundingClientRect();
-            moveJoy(e.touches[0].clientX, e.touches[0].clientY);
+            for(let i=0; i<e.changedTouches.length; i++) {
+                if(joyTouchId === null) {
+                    joyTouchId = e.changedTouches[i].identifier;
+                    joyActive = true;
+                    baseRect = base.getBoundingClientRect();
+                    moveJoy(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+                    
+                    let now = Date.now();
+                    if (now - lastTap < 300) {
+                        this.input.keys['ShiftLeft'] = true;
+                        setTimeout(() => this.input.keys['ShiftLeft'] = false, 150);
+                    }
+                    lastTap = now;
+                }
+            }
         }, {passive: false});
 
         base.addEventListener('touchmove', e => { 
             e.preventDefault(); 
-            moveJoy(e.touches[0].clientX, e.touches[0].clientY); 
+            for(let i=0; i<e.changedTouches.length; i++) {
+                if(e.changedTouches[i].identifier === joyTouchId) {
+                    moveJoy(e.changedTouches[i].clientX, e.changedTouches[i].clientY); 
+                }
+            }
         }, {passive: false});
 
-        base.addEventListener('touchend', e => { 
-            e.preventDefault(); 
-            joyActive = false;
-            stick.style.transform = `translate(-50%, -50%)`;
-            this.input.keys['KeyW'] = false; this.input.keys['KeyS'] = false;
-            this.input.keys['KeyA'] = false; this.input.keys['KeyD'] = false;
-        }, {passive: false});
+        const endJoy = (e) => {
+            for(let i=0; i<e.changedTouches.length; i++) {
+                if(e.changedTouches[i].identifier === joyTouchId) {
+                    joyTouchId = null;
+                    joyActive = false;
+                    stick.style.transform = `translate(-50%, -50%)`;
+                    this.input.keys['KeyW'] = false; this.input.keys['KeyS'] = false;
+                    this.input.keys['KeyA'] = false; this.input.keys['KeyD'] = false;
+                }
+            }
+        };
+
+        base.addEventListener('touchend', e => { e.preventDefault(); endJoy(e); }, {passive: false});
+        base.addEventListener('touchcancel', e => { e.preventDefault(); endJoy(e); }, {passive: false});
 
         document.getElementById('btnUp').onclick = () => this.moveStoreSelection(-2);
         document.getElementById('btnDown').onclick = () => this.moveStoreSelection(2);
@@ -1259,6 +1257,7 @@ class Game {
     }
 
     moveStoreSelection(dir) {
+        if(!isMobileMode) return;
         const keys = Object.keys(WEAPONS);
         this.storeSelectedIndex += dir;
         if (this.storeSelectedIndex < 0) this.storeSelectedIndex = 0;
@@ -1293,7 +1292,7 @@ class Game {
         keys.forEach((k, index) => {
             const w = WEAPONS[k];
             const isUnlocked = u.unlocks.includes(w.id), isSelected = u.selectedWeapon === w.id;
-            const isHighlighted = index === this.storeSelectedIndex;
+            const isHighlighted = isMobileMode && index === this.storeSelectedIndex;
             
             const div = document.createElement('div'); 
             div.className = `weapon-card ${isUnlocked ? 'unlocked' : ''} ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}`;
@@ -1306,8 +1305,8 @@ class Game {
             if (isUnlocked) { html += `<p style="color:var(--accent-color)">DESBLOQUEADA</p>`; } 
             else { html += `<p class="price">Costo: ${w.cost} Cr</p>`; }
             
-            if (isHighlighted) {
-                html += `<span class="buy-btn-hint">${isUnlocked ? (isSelected ? 'EQUIPADO' : 'PRESIONA [ENTER] PARA EQUIPAR') : 'PRESIONA [ENTER] PARA COMPRAR'}</span>`;
+            if (isMobileMode && isHighlighted) {
+                html += `<span class="buy-btn-hint">${isUnlocked ? (isSelected ? 'EQUIPADO' : 'PRESIONA BUY PARA EQUIPAR') : 'PRESIONA BUY PARA COMPRAR'}</span>`;
             }
             div.innerHTML = html;
             cont.appendChild(div);
@@ -1620,15 +1619,18 @@ class Game {
 
     drawMinimap() {
         if(!this.level) return;
-        let size = isMobileMode ? 220 : 150;
-        const ctx = this.ctx, scale = size / (this.level.cols * this.level.tileSize);
+        let size = 150;
         let mapX = CANVAS_WIDTH - size - 20;
         let mapY = CANVAS_HEIGHT - size - 20;
 
         if (isMobileMode) {
+            size = 220;
             mapX = 20;
             mapY = 160;
         }
+
+        const scale = size / (this.level.cols * this.level.tileSize);
+        const ctx = this.ctx;
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; ctx.fillRect(mapX, mapY, size, size); ctx.strokeStyle = '#00ffcc'; ctx.strokeRect(mapX, mapY, size, size);
 
