@@ -167,7 +167,7 @@
                         <button id="btnStory">HISTORIA</button>
                         <button id="btnSurvival" class="danger">SUPERVIVENCIA</button>
                         <button id="btnStore">ARMERÍA</button>
-                        <button id="btnSound">Sonido: <span id="soundStatus">ON</span></button>
+                        <button id="btnSound">SONIDO: <span id="soundStatus">ON</span></button>
                     </div>
                     <button id="btnLogout" style="background:#444; color:#fff;">Cerrar Sesión</button>
                 </div>
@@ -1063,10 +1063,19 @@ class Game {
         
         window.addEventListener('keydown', e => { 
             this.input.keys[e.code] = true; 
-            if(e.code === 'Escape' || e.code === 'KeyP') this.togglePause(); 
+            if(e.code === 'Escape' || e.code === 'KeyP') {
+                if(this.state === 'STORE') document.getElementById('btnBackToMenuPC').click();
+                else this.togglePause(); 
+            }
             if(e.code === 'KeyM') this.toggleSound();
             if(e.code === 'Enter' && this.state === 'LOGIN') document.getElementById('btnLogin').click();
             if(e.code === 'Enter' && this.state === 'STORE' && !isMobileMode) this.buySelectedStoreItem();
+            
+            if(this.state === 'MENU') {
+                if(e.code === 'Digit1' || e.code === 'Numpad1') document.getElementById('btnStory').click();
+                if(e.code === 'Digit2' || e.code === 'Numpad2') document.getElementById('btnSurvival').click();
+                if(e.code === 'Digit3' || e.code === 'Numpad3') document.getElementById('btnStore').click();
+            }
         });
         window.addEventListener('keyup', e => { this.input.keys[e.code] = false; });
         
